@@ -1,0 +1,16 @@
+# Setting server host
+server.host: "0.0.0.0"
+
+# Disable the interactive "preboot" enrollment screens
+interactiveSetup.enabled: false
+
+# Hosts
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+
+# # Service token
+# elasticsearch.serviceAccountToken: "${ELASTIC_SERVICE_TOKEN}"
+
+# Security for enabling plugins & features
+xpack.security.encryptionKey: "2f61548f9f7bf94818a75c1c96dc3a5b"
+xpack.encryptedSavedObjects.encryptionKey: "9f19d1eab4ce885a15e209d0897702cb"
+xpack.reporting.encryptionKey: "78f5381104ce405c73561fb92a71c5ea"

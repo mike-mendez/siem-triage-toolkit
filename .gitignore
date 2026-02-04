@@ -2,3 +2,7 @@
 info.md
 project_structure.txt
 victim/
+chat.md
+latest-kibana-logs.txt
+latest-elasticsearch-logs.txt
+.DS_Store
