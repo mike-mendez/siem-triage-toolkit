@@ -7,10 +7,10 @@ interactiveSetup.enabled: false
 # Hosts
 elasticsearch.hosts: ["http://elasticsearch:9200"]
 
-# # Service token
-# elasticsearch.serviceAccountToken: "${ELASTIC_SERVICE_TOKEN}"
+# Service token from .env
+elasticsearch.serviceAccountToken: "${ELASTIC_SERVICE_TOKEN}"
 
-# Security for enabling plugins & features
+# Security for enabling plugins & features (generated via docker command)
 xpack.security.encryptionKey: "REDACTED"
 xpack.encryptedSavedObjects.encryptionKey: "REDACTED"
 xpack.reporting.encryptionKey: "REDACTED"

@@ -21,14 +21,16 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana-wolfi:${STACK_VERSION}
     restart: always
+    env_file:
+      - .env
     volumes:
       - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
-      # - ELASTICSEARCH_SERVICEACCOUNT_TOKEN=${ELASTIC_SERVICE_TOKEN}
-      # - SERVER_PUBLICBASEURL=http://localhost:5601
+    # environment:
+    # - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    # - ELASTICSEARCH_USERNAME=kibana_system
+    # - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+    # - ELASTICSEARCH_SERVICEACCOUNT_TOKEN=${ELASTIC_SERVICE_TOKEN}
+    # - SERVER_PUBLICBASEURL=http://localhost:5601
     ports:
       - "5601:5601"
 
