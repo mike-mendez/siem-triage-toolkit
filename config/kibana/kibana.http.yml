@@ -1,0 +1,12 @@
+server.host: "0.0.0.0"
+interactiveSetup.enabled: false
+
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "${KIBANA_SYSTEM_PASSWORD}"
+
+# Security for enabling plugins & features (generated via docker command)
+xpack.encryptedSavedObjects.encryptionKey: "e526e6fefcf9d8875f3aba964becdd4a"
+xpack.reporting.encryptionKey: "fb2bed2f03f1ff750f3ce3f99e89b384"
+xpack.security.encryptionKey: "32b58b4d4f8d4e028db209167675887a"
