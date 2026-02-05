@@ -1,8 +1,22 @@
+# Secrets
 .env
+*.env
+
+# Certificates / private keys
+certs/
+**/*.key
+**/*.p12
+**/*.pfx
+
+# OS + tooling
+.DS_Store
+
+# Misc.
 info.md
 project_structure.txt
+repo_structure.txt
 victim/
 chat.md
 latest-kibana-logs.txt
 latest-elasticsearch-logs.txt
-.DS_Store
+best.md
