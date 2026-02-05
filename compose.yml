@@ -15,29 +15,38 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
-    networks:
-      - elastic
+    networks: [elastic]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -u elastic:${ELASTIC_PASSWORD} http://localhost:9200 >/dev/null || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   kibana:
     image: docker.elastic.co/kibana/kibana-wolfi:${STACK_VERSION}
     restart: always
-    env_file:
-      - .env
+    env_file: [.env]
     volumes:
-      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
-    # environment:
-    # - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    # - ELASTICSEARCH_USERNAME=kibana_system
-    # - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
-    # - ELASTICSEARCH_SERVICEACCOUNT_TOKEN=${ELASTIC_SERVICE_TOKEN}
-    # - SERVER_PUBLICBASEURL=http://localhost:5601
+      - ./config/kibana/kibana.http.yml:/usr/share/kibana/config/kibana.yml:ro
     ports:
       - "5601:5601"
-
-    networks:
-      - elastic
+    networks: [elastic]
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   # victim-nginx:
   #   build: ./victim/nginx
@@ -49,6 +58,7 @@ services:
 
 volumes:
   esdata:
+    name: elk_esdata
     driver: local
 
 networks:

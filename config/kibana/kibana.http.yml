@@ -1,16 +1,12 @@
-# Setting server host
 server.host: "0.0.0.0"
-
-# Disable the interactive "preboot" enrollment screens
 interactiveSetup.enabled: false
 
-# Hosts
 elasticsearch.hosts: ["http://elasticsearch:9200"]
 
-# Service token from .env
-elasticsearch.serviceAccountToken: "${ELASTIC_SERVICE_TOKEN}"
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "${KIBANA_SYSTEM_PASSWORD}"
 
 # Security for enabling plugins & features (generated via docker command)
-xpack.security.encryptionKey: "REDACTED"
 xpack.encryptedSavedObjects.encryptionKey: "REDACTED"
 xpack.reporting.encryptionKey: "REDACTED"
+xpack.security.encryptionKey: "REDACTED"
