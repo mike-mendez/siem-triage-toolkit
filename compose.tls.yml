@@ -28,8 +28,7 @@ services:
       - ./config/kibana/kibana.tls.yml:/usr/share/kibana/config/kibana.yml:ro
       - ./certs:/usr/share/kibana/config/certs:ro
     healthcheck:
-      test:
-        [
+      test: [
           "CMD-SHELL",
-          "curl -k -s -I https://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+          "curl -k -s -I https://localhost:5601 | grep -q 'HTTP/1.1 302 Found'", # -k is used for local use/labs; not needed in prod: CA trust
         ]
