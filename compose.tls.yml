@@ -20,7 +20,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} https://localhost:${ES_PORT} >/dev/null || exit 1",
+          "curl -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} https://localhost:9200 >/dev/null || exit 1",
         ]
 
   kibana:
@@ -28,7 +28,11 @@ services:
       - ./config/kibana/kibana.tls.yml:/usr/share/kibana/config/kibana.yml:ro
       - ./certs:/usr/share/kibana/config/certs:ro
     healthcheck:
-      test: [
+      test:
+        [
           "CMD-SHELL",
-          "curl -k -s -I https://localhost:5601 | grep -q 'HTTP/1.1 302 Found'", # -k is used for local use/labs; not needed in prod: CA trust
+          'curl -k -s https://localhost:5601/api/status | grep -q ''"level":"available"''',
         ]
+      interval: 10s
+      timeout: 5s
+      retries: 60
