@@ -13,3 +13,6 @@ certs/
 
 # Misc.
 notes/
+
+# AI
+.claude/
