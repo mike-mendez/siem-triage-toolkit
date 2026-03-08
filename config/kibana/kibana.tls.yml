@@ -17,7 +17,7 @@ elasticsearch.serviceAccountToken: "${ELASTIC_SERVICE_TOKEN}"
 # Kibana must trust the CA that signed Elasticsearch's cert & SSL certificate
 elasticsearch.ssl.certificateAuthorities:
   ["/usr/share/kibana/config/certs/ca/ca.crt"]
-elasticsearch.ssl.verificationMode: certificate
+elasticsearch.ssl.verificationMode: full
 
 # Security for enabling plugins & features (generated via docker command)
 xpack.encryptedSavedObjects.encryptionKey: "REDACTED"

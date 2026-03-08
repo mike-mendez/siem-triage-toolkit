@@ -28,7 +28,9 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana-wolfi:${STACK_VERSION}
     restart: always
-    env_file: [.env]
+    environment:
+      - KIBANA_SYSTEM_PASSWORD=${KIBANA_SYSTEM_PASSWORD:-}
+      - ELASTIC_SERVICE_TOKEN=${ELASTIC_SERVICE_TOKEN:-}
     volumes:
       - ./config/kibana/kibana.http.yml:/usr/share/kibana/config/kibana.yml:ro
     ports:
@@ -41,7 +43,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          'curl -k -s https://localhost:5601/api/status | grep -q ''"level":"available"''',
+          'curl -fsS http://localhost:5601/api/status | grep -q ''"level":"available"''',
         ]
       interval: 10s
       timeout: 5s
@@ -57,7 +59,6 @@ services:
 
 volumes:
   esdata:
-    name: elk_esdata
     driver: local
 
 networks:
