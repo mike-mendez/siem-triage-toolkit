@@ -52,7 +52,7 @@ fi
 
 PROJECT_NAME="${PROJECT_NAME:-${COMPOSE_PROJECT_NAME:-elk}}"
 
-COMPOSE=(docker compose -p "$PROJECT_NAME" -f "$ROOT_DIR/compose.yml")
+COMPOSE=(docker compose --project-directory "$ROOT_DIR" -p "$PROJECT_NAME" -f "$ROOT_DIR/compose.yml")
 if [[ "$MODE" == "tls" ]]; then
   COMPOSE+=(-f "$ROOT_DIR/compose.tls.yml")
 elif [[ "$MODE" == "auto" ]]; then

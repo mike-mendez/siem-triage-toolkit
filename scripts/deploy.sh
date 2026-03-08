@@ -10,27 +10,29 @@ PROJECT_NAME=""
 TIMEOUT_SEC=300
 FORCE_RECREATE=false
 NO_PULL=false
-AUTO_RESET_KIBANA_SYSTEM=false  # if true, script runs reset-password interactively
-SKIP_TOKEN_CHECK=false          # useful if you only want stack up
 AUTO_TOKEN=false                # if true, generate token on 401 and continue
+PERSIST_TOKEN=false             # if true and --auto-token is used, write token to .env
+LEGACY_AUTO_RESET=false         # deprecated compatibility flag
 
 usage() {
   cat <<'USAGE'
 Usage:
   scripts/deploy.sh [--mode baseline|tls] [--project NAME] [--timeout SEC]
                     [--force-recreate] [--no-pull]
-                    [--auto-reset-kibana-system]
-                    [--skip-token-check]
+                    [--auto-token] [--persist-token]
 
 Examples:
   scripts/deploy.sh --mode baseline
-  scripts/deploy.sh --mode baseline --auto-reset-kibana-system
   scripts/deploy.sh --mode tls --force-recreate
+  scripts/deploy.sh --mode tls --auto-token
+  scripts/deploy.sh --mode tls --auto-token --persist-token
 
 Notes:
   - Reads .env from repo root.
-  - Baseline requires kibana_system password to match ES.
+  - Baseline auto-resets kibana_system password to match KIBANA_SYSTEM_PASSWORD when needed.
   - TLS requires certs and ELASTIC_SERVICE_TOKEN.
+  - If ELASTIC_SERVICE_TOKEN is missing/invalid, use --auto-token.
+  - Auto-generated tokens are session-only by default unless --persist-token is set.
 USAGE
 }
 
@@ -45,15 +47,18 @@ while [[ $# -gt 0 ]]; do
     --timeout) TIMEOUT_SEC="${2:-}"; [[ "$TIMEOUT_SEC" =~ ^[0-9]+$ ]] || die "--timeout must be a positive integer"; shift 2 ;;
     --force-recreate) FORCE_RECREATE=true; shift ;;
     --no-pull) NO_PULL=true; shift ;;
-    --auto-reset-kibana-system) AUTO_RESET_KIBANA_SYSTEM=true; shift ;;
-    --skip-token-check) SKIP_TOKEN_CHECK=true; shift ;;
+    --auto-reset-kibana-system) LEGACY_AUTO_RESET=true; shift ;;
     --auto-token) AUTO_TOKEN=true; shift ;;
+    --persist-token) PERSIST_TOKEN=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown argument: $1 (use --help)" ;;
   esac
 done
 
 [[ "$MODE" == "baseline" || "$MODE" == "tls" ]] || die "--mode must be baseline or tls"
+if [[ "$PERSIST_TOKEN" == "true" && "$AUTO_TOKEN" != "true" ]]; then
+  die "--persist-token requires --auto-token"
+fi
 
 have_cmd docker || die "docker not found"
 docker compose version >/dev/null 2>&1 || die "docker compose not available (need Compose v2)"
@@ -70,13 +75,19 @@ PROJECT_NAME="${PROJECT_NAME:-${COMPOSE_PROJECT_NAME:-elk}}"
 ES_PORT="${ES_PORT:-9200}"
 KIBANA_PORT="${KIBANA_PORT:-5601}"
 
+if [[ "$LEGACY_AUTO_RESET" == "true" ]]; then
+  log "WARNING: --auto-reset-kibana-system is deprecated. Baseline password reset is now automatic."
+fi
+
 : "${STACK_VERSION:?STACK_VERSION missing in .env}"
 : "${ELASTIC_PASSWORD:?ELASTIC_PASSWORD missing in .env}"
 
 if [[ "$MODE" == "baseline" ]]; then
   : "${KIBANA_SYSTEM_PASSWORD:?KIBANA_SYSTEM_PASSWORD missing in .env (baseline mode)}"
 else
-  : "${ELASTIC_SERVICE_TOKEN:?ELASTIC_SERVICE_TOKEN missing in .env (tls mode)}"
+  if [[ -z "${ELASTIC_SERVICE_TOKEN:-}" && "$AUTO_TOKEN" != "true" ]]; then
+    die "ELASTIC_SERVICE_TOKEN missing in .env (tls mode). Re-run with --auto-token to generate one."
+  fi
   [[ -f "$ROOT_DIR/certs/ca/ca.crt" ]] || die "Missing certs/ca/ca.crt (TLS mode)"
   [[ -f "$ROOT_DIR/certs/elasticsearch/elasticsearch.crt" ]] || die "Missing certs/elasticsearch/elasticsearch.crt (TLS mode)"
   [[ -f "$ROOT_DIR/certs/elasticsearch/elasticsearch.key" ]] || die "Missing certs/elasticsearch/elasticsearch.key (TLS mode)"
@@ -88,9 +99,6 @@ COMPOSE=(docker compose --project-directory "$ROOT_DIR" -p "$PROJECT_NAME" -f "$
 if [[ "$MODE" == "tls" ]]; then
   COMPOSE+=(-f "$ROOT_DIR/compose.tls.yml")
 fi
-
-UP_ARGS=(up -d)
-[[ "$FORCE_RECREATE" == "true" ]] && UP_ARGS+=(--force-recreate)
 
 wait_for_health() {
   local svc="$1"
@@ -134,10 +142,25 @@ user = "kibana_system:${KIBANA_SYSTEM_PASSWORD}"
 EOF
 }
 
-reset_kibana_system_password() {
-  log "Resetting kibana_system password (interactive)..."
-  log "When prompted, enter the SAME value as KIBANA_SYSTEM_PASSWORD in .env"
-  "${COMPOSE[@]}" exec elasticsearch bin/elasticsearch-reset-password -u kibana_system -i
+json_escape() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+reset_kibana_system_password_api() {
+  local payload
+  payload="{\"password\":\"$(json_escape "$KIBANA_SYSTEM_PASSWORD")\"}"
+
+  curl -fsS --config - -H "Content-Type: application/json" \
+    -X POST "http://localhost:${ES_PORT}/_security/user/kibana_system/_password" \
+    --data-binary "$payload" >/dev/null <<EOF
+user = "elastic:${ELASTIC_PASSWORD}"
+EOF
 }
 
 probe_kibana_ready() {
@@ -146,15 +169,6 @@ probe_kibana_ready() {
   else
     curl -fsS --cacert "$ROOT_DIR/certs/ca/ca.crt" "https://localhost:${KIBANA_PORT}/api/status" | grep -q '"level":"available"'
   fi
-}
-
-check_service_token() {
-  [[ "$SKIP_TOKEN_CHECK" == "true" ]] && return 0
-
-  curl -fsS --cacert "$ROOT_DIR/certs/ca/ca.crt" \
-    --config - "https://localhost:${ES_PORT}/_security/_authenticate" >/dev/null <<EOF
-header = "Authorization: Bearer ${ELASTIC_SERVICE_TOKEN}"
-EOF
 }
 
 log "Mode: $MODE"
@@ -189,18 +203,8 @@ update_env_kv() {
   fi
 }
 
-reload_env() {
-    set -o allexport
-    source "$ENV_FILE"
-
-    : "${COMPOSE_PROJECT_NAME:=elk}"
-    : "${ES_PORT:=9200}"
-    : "${KIBANA_PORT:=5601}"
-
-    set +o allexport
-}
-
 generate_service_token() {
+  local persist_token="${1:-false}"
   log "Generating new service token via REST API (elastic/kibana/kibana-docker)..."
 
   # Delete existing token (ignore 404 if it doesn't exist)
@@ -226,9 +230,15 @@ EOF
 
   [[ -n "${token:-}" ]] || die "Failed to parse token from API response: $response"
 
-  log "Updating .env with new ELASTIC_SERVICE_TOKEN"
-  update_env_kv "ELASTIC_SERVICE_TOKEN" "$token" "$ENV_FILE"
-  reload_env
+  export ELASTIC_SERVICE_TOKEN="$token"
+  log "ELASTIC_SERVICE_TOKEN updated in current deploy session."
+
+  if [[ "$persist_token" == "true" ]]; then
+    log "Persisting ELASTIC_SERVICE_TOKEN to .env (--persist-token enabled)."
+    update_env_kv "ELASTIC_SERVICE_TOKEN" "$token" "$ENV_FILE"
+  else
+    log "Token not written to .env (default secure behavior)."
+  fi
 }
 
 verify_service_token() {
@@ -251,46 +261,39 @@ if [[ "$MODE" == "baseline" ]]; then
   log "Validating kibana_system credentials against Elasticsearch..."
   if ! check_kibana_system_auth; then
     log "kibana_system auth FAILED. This typically happens on a fresh esdata volume."
-    log "You must reset kibana_system password to match your .env."
-
-    if [[ "$AUTO_RESET_KIBANA_SYSTEM" == "true" ]]; then
-      reset_kibana_system_password
-    else
-      cat <<'INSTR'
-Next step (manual):
-  docker compose -p elk exec elasticsearch bin/elasticsearch-reset-password -u kibana_system -i
-
-Then ensure .env contains:
-  KIBANA_SYSTEM_PASSWORD=<the exact value you set>
-
-After updating .env, re-run:
-  scripts/deploy.sh --mode baseline --force-recreate
-
-INSTR
-      exit 2
-    fi
+    log "Auto-resetting kibana_system password from .env via Elasticsearch Security API..."
+    reset_kibana_system_password_api || die "Failed to reset kibana_system password automatically."
+    FORCE_RECREATE=true
 
     log "Re-checking kibana_system auth..."
-    check_kibana_system_auth || die "kibana_system still cannot authenticate. Verify .env matches the password you set."
+    check_kibana_system_auth || die "kibana_system still cannot authenticate after auto-reset. Verify .env credentials and ES state."
   fi
 else
   log "TLS mode: verifying service token against ES (after stack start)..."
-  # ES is up, but Kibana not started yet. We can still validate token.
-  if ! verify_service_token; then
+  # ES is up, but Kibana not started yet. We can still validate/bootstrap token.
+  if [[ -z "${ELASTIC_SERVICE_TOKEN:-}" ]]; then
+    [[ "$AUTO_TOKEN" == "true" ]] || die "ELASTIC_SERVICE_TOKEN is empty. Re-run with --auto-token to generate one."
+    log "No service token found. Auto-generating one..."
+    generate_service_token "$PERSIST_TOKEN"
+    FORCE_RECREATE=true
+    log "Verifying generated service token..."
+    verify_service_token || die "Generated service token failed verification."
+  elif ! verify_service_token; then
     if [[ "$AUTO_TOKEN" == "true" ]]; then
       log "Service token invalid (401). Auto-generating a new one..."
-      generate_service_token
-
-      log "Recreating Kibana to pick up updated token..."
-      "${COMPOSE[@]}" up -d --force-recreate kibana
+      generate_service_token "$PERSIST_TOKEN"
+      FORCE_RECREATE=true
 
       log "Re-checking service token..."
-      verify_service_token || die "Newly generated service token still fails. Check ES logs and .env formatting."
+      verify_service_token || die "Newly generated service token still fails. Check ES logs and certificate/auth settings."
     else
       die "Service token auth failed. Re-run with --auto-token or regenerate token manually."
     fi
   fi
 fi
+
+UP_ARGS=(up -d)
+[[ "$FORCE_RECREATE" == "true" ]] && UP_ARGS+=(--force-recreate)
 
 log "Starting Kibana..."
 "${COMPOSE[@]}" "${UP_ARGS[@]}" kibana
