@@ -8,7 +8,7 @@
 - Kibana configs split into:
   - `kibana.http.yml` (baseline uses `kibana_system`)
   - `kibana.tls.yml` (TLS uses service account token)
-- Persistent Elasticsearch data volume (prevents re-bootstrap churn)
+- Project-scoped Elasticsearch data volumes by Compose project name (`-p`)
 
 ## Main Features (upcoming)
 - **Preconfigured parsers** (pipelines / ingestion)
@@ -22,95 +22,87 @@
 - Docker Desktop (Apple Silicon OK)
 - Ports available:
   - Elasticsearch: `${ES_PORT}` (default 9200)
-  - Kibana: 5601
+  - Kibana: `${KIBANA_PORT}` (default 5601)
 - Create your local env file:
   ```bash
   cp .env.example .env
   ```
 
 ### Environment Variables
-See .env.example for required fields:
-- ELASTIC_PASSWORD
-- KIBANA_SYSTEM_PASSWORD (baseline Kibana -> ES)
-- ELASTIC_SERVICE_TOKEN (TLS Kibana -> ES)
-- STACK_VERSION
-- ES_PORT
-- COMPOSE_PROJECT_NAME
+See `.env.example` for required fields:
+- `ELASTIC_PASSWORD`
+- `KIBANA_SYSTEM_PASSWORD` (baseline Kibana -> ES)
+- `ELASTIC_SERVICE_TOKEN` (TLS Kibana -> ES; optional if using `--auto-token`)
+- `STACK_VERSION`
+- `ES_PORT`
+- `KIBANA_PORT`
+- `COMPOSE_PROJECT_NAME`
 
 ### Modes
 **Baseline (HTTP)**
-- ES: http://localhost:${ES_PORT}
-- Kibana: http://localhost:5601
-- Kibana -> ES auth: kibana_system + KIBANA_SYSTEM_PASSWORD
+- ES: `http://localhost:${ES_PORT}`
+- Kibana: `http://localhost:${KIBANA_PORT}`
+- Kibana -> ES auth: `kibana_system` + `KIBANA_SYSTEM_PASSWORD`
 
 **TLS (HTTPS)**
-- ES: https://localhost:${ES_PORT}
-- Kibana: https://localhost:5601
-- Kibana -> ES auth: service account token (ELASTIC_SERVICE_TOKEN)
+- ES: `https://localhost:${ES_PORT}`
+- Kibana: `https://localhost:${KIBANA_PORT}`
+- Kibana -> ES auth: service account token (`ELASTIC_SERVICE_TOKEN`)
 
-> Whenever `.env` is modified, re-export variables into your current shell:
-> ```bash
-> set -o allexport; source .env; set +o allexport
-> ```
+### Recommended Workflow (scripts)
+The scripts enforce hardened defaults and mode checks.
 
-### 1. Baseline (HTTP)
+**Baseline (HTTP)**
 ```bash
-docker compose -p ${COMPOSE_PROJECT_NAME} up -d
+scripts/deploy.sh --mode baseline
 ```
-> If COMPOSE_PROJECT_NAME isn’t set, replace with **elk**.
+If baseline auth drifts (fresh volume or password mismatch), deploy auto-resets `kibana_system`
+to `KIBANA_SYSTEM_PASSWORD` from `.env` and continues.
 
-> *Baseline uses compose.yml by default.*
-
-**Verify elasticsearch connectivity**
+**TLS (HTTPS)**
 ```bash
-set -o allexport; source .env; set +o allexport
-curl -u elastic:${ELASTIC_PASSWORD} http://localhost:${ES_PORT}
+scripts/deploy.sh --mode tls
 ```
-**Set kibana_system password (match your .env)**
+
+If TLS token is missing or invalid, auto-generate and keep it in-session only:
 ```bash
-docker compose -p ${COMPOSE_PROJECT_NAME} exec elasticsearch bin/elasticsearch-reset-password -u kibana_system -i
+scripts/deploy.sh --mode tls --auto-token
 ```
-**Kibana Baseline UI**
 
-Go to [http://localhost:5601](http://localhost:5601) and login as username: **elastic** / password: **${ELASTIC_PASSWORD}**
+Persist a newly generated token to `.env` only when explicitly requested:
+```bash
+scripts/deploy.sh --mode tls --auto-token --persist-token
+```
 
-> _Kibana itself authenticates to Elasticsearch using kibana_system in baseline; you log in as elastic in the UI._
+Teardown:
+```bash
+scripts/teardown.sh --mode baseline
+scripts/teardown.sh --mode tls
+```
 
-### 2. TLS (HTTPS)
-> Assumes certs exist under ./certs. See “Certificates” below
+> Service tokens live in Elasticsearch security state for that Compose project/volume.
+> Wiping volumes (`scripts/teardown.sh --volumes`) removes passwords/tokens for that project.
+
+### Manual Compose Workflow (advanced)
+Baseline:
+```bash
+docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml up -d
+```
+
+TLS:
 ```bash
 docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -d
 ```
-**Verify ES HTTPS**
-```bash
-set -o allexport; source .env; set +o allexport
-curl --cacert ./certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} https://localhost:${ES_PORT}
-```
-**Create service token (only needed after wiping volumes)**
-> Service tokens live in Elasticsearch’s security index (persistent data volume). If you wipe volumes (down -v), the token is gone.
 
-> Switching between HTTP/TLS should NOT require a new token unless you destroyed Elasticsearch data or recreated in a way that bootstraps a fresh security state.
-```bash
-docker compose -p ${COMPOSE_PROJECT_NAME} exec elasticsearch bin/elasticsearch-service-tokens delete elastic/kibana kibana-docker || true
-docker compose -p ${COMPOSE_PROJECT_NAME} exec elasticsearch bin/elasticsearch-service-tokens create elastic/kibana kibana-docker
-```
-**Paste the token value into .env as ELASTIC_SERVICE_TOKEN=....**
-
-**Recreate Kibana (to pick up the new token)**
-> Docker Compose only injects env vars at container creation.
-
-> Restarting a container does not re-read .env into the running container.
+Recreate Kibana after auth env changes:
 ```bash
 docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -d --force-recreate kibana
 ```
-**Verify token against ES**
-```bash
-set -o allexport; source .env; set +o allexport
-curl --cacert ./certs/ca/ca.crt -H "Authorization: Bearer ${ELASTIC_SERVICE_TOKEN}" https://localhost:${ES_PORT}/_security/_authenticate
-```
-**Kibana UI**
 
-Go to [https://localhost:5601](https://localhost:5601) and login as username: **elastic** / password: **${ELASTIC_PASSWORD}**
+### Docs Index
+- Runbook: `docs/runbook.md`
+- Security policy: `SECURITY.md`
+- Contribution guide: `CONTRIBUTING.md`
 
 ## Certificates (manual, streamlined)
 ___
@@ -184,10 +176,10 @@ ___
 - Kibana 400 on / → Kibana cannot fully initialize (auth/config mismatch); **check Kibana logs + ES auth**.
 - 401 token auth → confirm shell env is loaded; **verify token with Bearer header against ES**.
 - Browser certificate warning → expected with local CA; **import certs/ca/ca.crt if you want no warning**.
+- TLS healthcheck failures → verify `certs/ca/ca.crt` exists and leaf cert SANs include `localhost`.
 
 ## Notes
 ***
-- The TLS Kibana healthcheck uses curl -k for local lab convenience because the container trust store does not automatically trust your local CA.
-  - In a hardened setup, prefer CA trust (install/mount CA) instead of -k.
-- Use -p ${COMPOSE_PROJECT_NAME} consistently to keep project resources/volumes stable. 
-  - _If you forget to source .env, replace with `-p elk`_.
+- TLS mode now uses CA-validated healthchecks (no insecure `-k` bypass).
+- Kibana -> Elasticsearch TLS verification mode is `full` (hostname validation enabled).
+- Volumes are project-scoped by Compose project name. Use `--project` in scripts (or `-p` with compose) for explicit isolation.
