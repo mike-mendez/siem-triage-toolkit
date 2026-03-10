@@ -405,11 +405,20 @@ def main() -> int:
         f"- `samples/screenshots/phase3_{mode_slug}_dashboard_summary.png`",
     ]
 
-    # Preserve existing file by appending additional mode blocks when rerun (e.g., TLS parity).
+    # If canonical Phase 3 report sections exist, do not append legacy mode blocks.
+    # This keeps docs/phase3_results.md stable and mode-specific.
     if results_path.exists():
         existing = results_path.read_text(encoding="utf-8")
-        if f"Mode validated: **{args.mode_label}**" not in existing:
-            results_path.write_text(existing.rstrip() + "\n\n---\n\n" + "\n".join(summary_lines[2:]) + "\n", encoding="utf-8")
+        canonical_marker = (
+            "## Baseline Validation (HTTP)"
+            if mode_slug == "baseline"
+            else "## TLS Validation (HTTPS)"
+        )
+        if canonical_marker not in existing and f"Mode validated: **{args.mode_label}**" not in existing:
+            results_path.write_text(
+                existing.rstrip() + "\n\n---\n\n" + "\n".join(summary_lines[2:]) + "\n",
+                encoding="utf-8",
+            )
     else:
         results_path.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 
