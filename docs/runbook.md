@@ -63,3 +63,9 @@ After volume wipe, re-bootstrap credentials/tokens.
   ```
 - Token auth failure in TLS mode: re-run with `--auto-token`.
 - TLS trust failures: verify `certs/ca/ca.crt` and SANs in `instances.yml`.
+
+## Detection Pack Validation (No Stack)
+Run offline detection checks:
+```bash
+python3 scripts/test_detections.py
+```

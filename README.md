@@ -101,8 +101,24 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 
 ### Docs Index
 - Runbook: `docs/runbook.md`
+- Triage template: `docs/triage_template.md`
+- Detection quality: `docs/detection_quality.md`
+- ATT&CK mapping: `docs/mitre_mapping.md`
+- Phase 3 validation checklist: `docs/phase3_validation_checklist.md`
+- Phase 4 scaling plan: `docs/phase4_scaling_plan.md`
 - Security policy: `SECURITY.md`
 - Contribution guide: `CONTRIBUTING.md`
+
+### Detection Pack (Offline Validation)
+- Field contract: `config/detections/field_contract.md`
+- Nginx detection pack: `config/detections/nginx/`
+- Fixtures: `samples/logs/nginx_access.log`
+- Expected outcomes: `tests/expected_hits.json`
+
+Run the offline harness:
+```bash
+python3 scripts/test_detections.py
+```
 
 ## Certificates (manual, streamlined)
 ___

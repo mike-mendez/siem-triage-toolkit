@@ -27,6 +27,9 @@
 - Validate script help output:
   - `scripts/deploy.sh --help`
   - `scripts/teardown.sh --help`
+- Validate detection pack:
+  - `python3 scripts/test_detections.py`
+  - `scripts/check_detection_pack.sh`
 
 ## Secrets and Sensitive Data
 - Never commit `.env`.
