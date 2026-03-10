@@ -1,0 +1,14 @@
+Phase 3 Alert List (baseline)
+
+2026-03-10T19:20:32.881Z | medium | phase3_nginx_404_recon_burst       | src=203.0.113.77    | path=-
+2026-03-10T19:20:29.885Z | high   | phase3_nginx_webshell_path_probe   | src=203.0.113.62    | path=/cgi-bin/.%2e/.%2e/.%2e/bin/sh
+2026-03-10T19:20:26.864Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.52    | path=/catalog
+2026-03-10T19:20:26.863Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.51    | path=/search
+2026-03-10T19:20:26.862Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.50    | path=/products
+2026-03-10T19:15:55.832Z | medium | phase3_nginx_404_recon_burst       | src=203.0.113.77    | path=-
+2026-03-10T19:15:52.809Z | high   | phase3_nginx_webshell_path_probe   | src=203.0.113.62    | path=/cgi-bin/.%2e/.%2e/.%2e/bin/sh
+2026-03-10T19:15:49.813Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.51    | path=/search
+2026-03-10T19:15:49.813Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.52    | path=/catalog
+2026-03-10T19:15:49.812Z | medium | phase3_nginx_sqli_querystring      | src=203.0.113.50    | path=/products
+2026-03-10T19:14:07.801Z | medium | phase3_nginx_404_recon_burst       | src=203.0.113.77    | path=-
+2026-03-10T19:14:07.786Z | high   | phase3_nginx_webshell_path_probe   | src=203.0.113.62    | path=/cgi-bin/.%2e/.%2e/.%2e/bin/sh
