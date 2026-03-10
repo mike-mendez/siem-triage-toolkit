@@ -1,0 +1,52 @@
+{
+  "rule_id": "nginx_login_bruteforce_burst",
+  "name": "Nginx Login Brute Force Burst",
+  "hypothesis": "Credential stuffing and brute-force attempts against login endpoints produce clustered POST 401 failures from the same source in a short interval.",
+  "source": "nginx.access",
+  "severity": "high",
+  "detection_logic": {
+    "type": "threshold_count",
+    "group_by": "source.ip",
+    "where": [
+      {
+        "field": "http.request.method",
+        "equals": "POST"
+      },
+      {
+        "field": "url.path",
+        "regex": "^/(api/login|wp-login\\.php)$"
+      },
+      {
+        "field": "http.response.status_code",
+        "equals": 401
+      }
+    ],
+    "case_insensitive": true,
+    "min_count": 5
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "http.request.method",
+    "url.path",
+    "http.response.status_code"
+  ],
+  "mitre": {
+    "tactic": "Credential Access",
+    "technique_id": "T1110",
+    "technique": "Brute Force"
+  },
+  "false_positives": [
+    "Load testing against auth workflows",
+    "Automated QA with intentionally bad credentials"
+  ],
+  "tuning": {
+    "threshold_min_count": 5,
+    "allowlist_source_ips": [],
+    "auth_paths_regex": "^/(api/login|wp-login\\.php)$"
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1110/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_login_bruteforce_burst.md"
+}

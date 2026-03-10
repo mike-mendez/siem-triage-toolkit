@@ -1,110 +1,44 @@
 [
-  {
-    "fixture_id": "FX001",
-    "line_number": 1,
-    "category": "benign",
-    "note": "Normal homepage request."
-  },
-  {
-    "fixture_id": "FX002",
-    "line_number": 2,
-    "category": "benign",
-    "note": "Static asset fetch."
-  },
-  {
-    "fixture_id": "FX003",
-    "line_number": 3,
-    "category": "ambiguous",
-    "note": "Authentication failure, not part of this detection set."
-  },
-  {
-    "fixture_id": "FX004",
-    "line_number": 4,
-    "category": "attack",
-    "note": "URL-encoded OR 1=1 SQLi style payload."
-  },
-  {
-    "fixture_id": "FX005",
-    "line_number": 5,
-    "category": "attack",
-    "note": "UNION SELECT SQLi style payload."
-  },
-  {
-    "fixture_id": "FX006",
-    "line_number": 6,
-    "category": "attack",
-    "note": "Time-based SQLi style payload."
-  },
-  {
-    "fixture_id": "FX007",
-    "line_number": 7,
-    "category": "benign",
-    "note": "Contains the term union but not SQLi syntax."
-  },
-  {
-    "fixture_id": "FX008",
-    "line_number": 8,
-    "category": "attack",
-    "note": "Direct shell.php probe with cmd parameter."
-  },
-  {
-    "fixture_id": "FX009",
-    "line_number": 9,
-    "category": "attack",
-    "note": "Direct cmd.php probe."
-  },
-  {
-    "fixture_id": "FX010",
-    "line_number": 10,
-    "category": "attack",
-    "note": "Traversal-to-shell style CGI probe."
-  },
-  {
-    "fixture_id": "FX011",
-    "line_number": 11,
-    "category": "benign",
-    "note": "Legitimate index.php request."
-  },
-  {
-    "fixture_id": "FX012",
-    "line_number": 12,
-    "category": "attack",
-    "note": "Recon burst step 1."
-  },
-  {
-    "fixture_id": "FX013",
-    "line_number": 13,
-    "category": "attack",
-    "note": "Recon burst step 2."
-  },
-  {
-    "fixture_id": "FX014",
-    "line_number": 14,
-    "category": "attack",
-    "note": "Recon burst step 3."
-  },
-  {
-    "fixture_id": "FX015",
-    "line_number": 15,
-    "category": "attack",
-    "note": "Recon burst step 4."
-  },
-  {
-    "fixture_id": "FX016",
-    "line_number": 16,
-    "category": "attack",
-    "note": "Recon burst step 5 (threshold reached)."
-  },
-  {
-    "fixture_id": "FX017",
-    "line_number": 17,
-    "category": "ambiguous",
-    "note": "Single random 404 should not trigger recon-burst rule."
-  },
-  {
-    "fixture_id": "FX018",
-    "line_number": 18,
-    "category": "benign",
-    "note": "Routine probe endpoint check."
-  }
+  {"fixture_id": "FX001", "line_number": 1, "category": "benign", "note": "Normal homepage request."},
+  {"fixture_id": "FX002", "line_number": 2, "category": "benign", "note": "Static asset fetch."},
+  {"fixture_id": "FX003", "line_number": 3, "category": "ambiguous", "note": "Authentication failure, below brute-force threshold."},
+  {"fixture_id": "FX004", "line_number": 4, "category": "attack", "note": "URL-encoded OR 1=1 SQLi style payload."},
+  {"fixture_id": "FX005", "line_number": 5, "category": "attack", "note": "UNION SELECT SQLi style payload."},
+  {"fixture_id": "FX006", "line_number": 6, "category": "attack", "note": "Time-based SQLi style payload."},
+  {"fixture_id": "FX007", "line_number": 7, "category": "benign", "note": "Contains union term but not SQLi syntax."},
+  {"fixture_id": "FX008", "line_number": 8, "category": "attack", "note": "Direct shell.php probe with cmd parameter."},
+  {"fixture_id": "FX009", "line_number": 9, "category": "attack", "note": "Direct cmd.php probe."},
+  {"fixture_id": "FX010", "line_number": 10, "category": "attack", "note": "Traversal-to-shell style CGI probe."},
+  {"fixture_id": "FX011", "line_number": 11, "category": "benign", "note": "Legitimate index.php request."},
+  {"fixture_id": "FX012", "line_number": 12, "category": "attack", "note": "Recon burst step 1."},
+  {"fixture_id": "FX013", "line_number": 13, "category": "attack", "note": "Recon burst step 2."},
+  {"fixture_id": "FX014", "line_number": 14, "category": "attack", "note": "Recon burst step 3."},
+  {"fixture_id": "FX015", "line_number": 15, "category": "attack", "note": "Recon burst step 4."},
+  {"fixture_id": "FX016", "line_number": 16, "category": "attack", "note": "Recon burst step 5 (threshold reached)."},
+  {"fixture_id": "FX017", "line_number": 17, "category": "ambiguous", "note": "Single random 404 should not trigger recon-burst rule."},
+  {"fixture_id": "FX018", "line_number": 18, "category": "benign", "note": "Routine probe endpoint check."},
+  {"fixture_id": "FX019", "line_number": 19, "category": "attack", "note": "Path traversal in query targeting /etc/passwd."},
+  {"fixture_id": "FX020", "line_number": 20, "category": "attack", "note": "Encoded traversal in path targeting /etc/passwd."},
+  {"fixture_id": "FX021", "line_number": 21, "category": "benign", "note": "Normal docs route request."},
+  {"fixture_id": "FX022", "line_number": 22, "category": "attack", "note": "Sensitive file access attempt to .git/config."},
+  {"fixture_id": "FX023", "line_number": 23, "category": "attack", "note": "Sensitive file access attempt to wp-config.php."},
+  {"fixture_id": "FX024", "line_number": 24, "category": "attack", "note": "Sensitive file access attempt to .env backup."},
+  {"fixture_id": "FX025", "line_number": 25, "category": "benign", "note": "robots.txt fetch."},
+  {"fixture_id": "FX026", "line_number": 26, "category": "attack", "note": "Nikto scanner probe with known scanner user-agent."},
+  {"fixture_id": "FX027", "line_number": 27, "category": "benign", "note": "Normal about page request."},
+  {"fixture_id": "FX028", "line_number": 28, "category": "attack", "note": "Brute-force burst attempt 1."},
+  {"fixture_id": "FX029", "line_number": 29, "category": "attack", "note": "Brute-force burst attempt 2."},
+  {"fixture_id": "FX030", "line_number": 30, "category": "attack", "note": "Brute-force burst attempt 3."},
+  {"fixture_id": "FX031", "line_number": 31, "category": "attack", "note": "Brute-force burst attempt 4."},
+  {"fixture_id": "FX032", "line_number": 32, "category": "attack", "note": "Brute-force burst attempt 5 (threshold reached)."},
+  {"fixture_id": "FX033", "line_number": 33, "category": "ambiguous", "note": "Single external failed login below threshold."},
+  {"fixture_id": "FX034", "line_number": 34, "category": "attack", "note": "Command injection payload using encoded semicolon-cat pattern."},
+  {"fixture_id": "FX035", "line_number": 35, "category": "attack", "note": "Command injection payload using encoded pipe-id pattern."},
+  {"fixture_id": "FX036", "line_number": 36, "category": "attack", "note": "Command injection payload using encoded backtick-whoami pattern."},
+  {"fixture_id": "FX037", "line_number": 37, "category": "benign", "note": "Harmless cmd help query."},
+  {"fixture_id": "FX038", "line_number": 38, "category": "attack", "note": "PHPUnit eval-stdin exploit probe."},
+  {"fixture_id": "FX039", "line_number": 39, "category": "benign", "note": "Normal vendor bootstrap file request."},
+  {"fixture_id": "FX040", "line_number": 40, "category": "attack", "note": "Encoded script-tag XSS probe in search parameter."},
+  {"fixture_id": "FX041", "line_number": 41, "category": "attack", "note": "Encoded image onerror XSS probe in profile parameter."},
+  {"fixture_id": "FX042", "line_number": 42, "category": "benign", "note": "Search query containing alert token without script/event syntax."}
 ]

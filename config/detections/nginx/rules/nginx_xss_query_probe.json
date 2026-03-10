@@ -1,0 +1,44 @@
+{
+  "rule_id": "nginx_xss_query_probe",
+  "name": "Nginx Reflected XSS Query Probe",
+  "hypothesis": "Reflected XSS probing against search/profile parameters often uses encoded script tags or event-handler payloads in query strings.",
+  "source": "nginx.access",
+  "severity": "medium",
+  "detection_logic": {
+    "type": "regex_any",
+    "fields": [
+      "url.original",
+      "url.query"
+    ],
+    "patterns": [
+      "%3[cC]script%3[eE]",
+      "onerror=",
+      "javascript:"
+    ],
+    "case_insensitive": true
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "url.original",
+    "url.query",
+    "http.response.status_code"
+  ],
+  "mitre": {
+    "tactic": "Initial Access",
+    "technique_id": "T1190",
+    "technique": "Exploit Public-Facing Application"
+  },
+  "false_positives": [
+    "Internal app security tests for XSS defenses",
+    "Payload replay from bug bounty triage in lab copies"
+  ],
+  "tuning": {
+    "allowlist_source_ips": [],
+    "allowlist_query_patterns": []
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1190/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_xss_query_probe.md"
+}

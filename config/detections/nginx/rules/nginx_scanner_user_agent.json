@@ -1,0 +1,45 @@
+{
+  "rule_id": "nginx_scanner_user_agent",
+  "name": "Nginx Known Scanner User-Agent",
+  "hypothesis": "Commodity scanner tooling often self-identifies through distinct user-agent strings that can be used for reconnaissance detection and suppression strategy design.",
+  "source": "nginx.access",
+  "severity": "medium",
+  "detection_logic": {
+    "type": "regex_any",
+    "fields": [
+      "user_agent.original"
+    ],
+    "patterns": [
+      "sqlmap",
+      "nmap scripting engine",
+      "nikto",
+      "masscan",
+      "zgrab",
+      "acunetix"
+    ],
+    "case_insensitive": true
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "user_agent.original",
+    "url.path"
+  ],
+  "mitre": {
+    "tactic": "Reconnaissance",
+    "technique_id": "T1595",
+    "technique": "Active Scanning"
+  },
+  "false_positives": [
+    "Authorized internal vulnerability scanning",
+    "Bug bounty or red-team activity within approved scope"
+  ],
+  "tuning": {
+    "allowlist_source_ips": [],
+    "allowlist_user_agents": []
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1595/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_scanner_user_agent.md"
+}

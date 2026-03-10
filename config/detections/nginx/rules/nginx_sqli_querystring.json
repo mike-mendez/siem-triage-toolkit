@@ -1,6 +1,7 @@
 {
   "rule_id": "nginx_sqli_querystring",
   "name": "Nginx SQLi Pattern in Query String",
+  "hypothesis": "Attackers probing SQL injection will place tautology, UNION, or time-delay payload fragments in URL query parameters.",
   "source": "nginx.access",
   "severity": "medium",
   "detection_logic": {

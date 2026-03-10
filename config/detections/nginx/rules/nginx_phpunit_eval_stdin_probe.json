@@ -1,0 +1,41 @@
+{
+  "rule_id": "nginx_phpunit_eval_stdin_probe",
+  "name": "Nginx PHPUnit eval-stdin Probe",
+  "hypothesis": "Exploit scans for legacy PHPUnit RCE frequently request the eval-stdin endpoint directly from internet-facing web roots.",
+  "source": "nginx.access",
+  "severity": "high",
+  "detection_logic": {
+    "type": "regex_any",
+    "fields": [
+      "url.path",
+      "url.original"
+    ],
+    "patterns": [
+      "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin\\.php"
+    ],
+    "case_insensitive": true
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "url.path",
+    "http.response.status_code"
+  ],
+  "mitre": {
+    "tactic": "Initial Access",
+    "technique_id": "T1190",
+    "technique": "Exploit Public-Facing Application"
+  },
+  "false_positives": [
+    "Intentional vulnerability checks in controlled environments",
+    "Synthetic scanner traffic from approved testing ranges"
+  ],
+  "tuning": {
+    "allowlist_source_ips": [],
+    "legacy_app_allowlist": []
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1190/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_phpunit_eval_stdin_probe.md"
+}

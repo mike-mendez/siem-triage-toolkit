@@ -1,6 +1,7 @@
 {
   "rule_id": "nginx_404_recon_burst",
   "name": "Nginx 404 Recon Burst to Sensitive Paths",
+  "hypothesis": "Automated reconnaissance against exposed web apps will generate bursty 404 patterns across high-value admin and secret-related routes from a single source.",
   "source": "nginx.access",
   "severity": "medium",
   "detection_logic": {

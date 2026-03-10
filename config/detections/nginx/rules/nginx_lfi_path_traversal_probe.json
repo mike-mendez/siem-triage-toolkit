@@ -1,0 +1,45 @@
+{
+  "rule_id": "nginx_lfi_path_traversal_probe",
+  "name": "Nginx LFI Path Traversal Probe",
+  "hypothesis": "Path traversal attempts against web endpoints commonly include dot-dot traversal fragments and sensitive Unix file targets in path or query values.",
+  "source": "nginx.access",
+  "severity": "high",
+  "detection_logic": {
+    "type": "regex_any",
+    "fields": [
+      "url.path",
+      "url.query",
+      "url.original"
+    ],
+    "patterns": [
+      "(?:\\.\\./|%2e%2e%2f|%2e%2e/)",
+      "/etc/passwd",
+      "/proc/self/environ"
+    ],
+    "case_insensitive": true
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "url.path",
+    "url.query",
+    "http.response.status_code"
+  ],
+  "mitre": {
+    "tactic": "Initial Access",
+    "technique_id": "T1190",
+    "technique": "Exploit Public-Facing Application"
+  },
+  "false_positives": [
+    "Security testing that validates traversal protections",
+    "Deliberate internal path normalization testing"
+  ],
+  "tuning": {
+    "allowlist_source_ips": [],
+    "allowed_test_route_prefixes": []
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1190/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_lfi_path_traversal_probe.md"
+}

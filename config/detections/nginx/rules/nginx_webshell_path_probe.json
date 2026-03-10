@@ -1,6 +1,7 @@
 {
   "rule_id": "nginx_webshell_path_probe",
   "name": "Nginx Webshell Path Probe",
+  "hypothesis": "Pre-compromise and post-compromise webshell activity often includes direct requests to shell-like PHP paths or traversal-to-shell CGI paths.",
   "source": "nginx.access",
   "severity": "high",
   "detection_logic": {

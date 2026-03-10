@@ -1,43 +1,52 @@
 {
   "nginx_sqli_querystring": {
-    "must_hit": [
-      "FX004",
-      "FX005",
-      "FX006"
-    ],
-    "must_not_hit": [
-      "FX001",
-      "FX007",
-      "FX012"
-    ],
+    "must_hit": ["FX004", "FX005", "FX006"],
+    "must_not_hit": ["FX001", "FX007", "FX012"],
     "notes": "SQLi pattern rule should detect encoded and plain SQLi fragments only."
   },
   "nginx_webshell_path_probe": {
-    "must_hit": [
-      "FX008",
-      "FX009",
-      "FX010"
-    ],
-    "must_not_hit": [
-      "FX001",
-      "FX011",
-      "FX018"
-    ],
+    "must_hit": ["FX008", "FX009", "FX010"],
+    "must_not_hit": ["FX001", "FX011", "FX018"],
     "notes": "Webshell rule should detect suspicious shell paths and traversal probes."
   },
   "nginx_404_recon_burst": {
-    "must_hit": [
-      "FX012",
-      "FX013",
-      "FX014",
-      "FX015",
-      "FX016"
-    ],
-    "must_not_hit": [
-      "FX001",
-      "FX008",
-      "FX017"
-    ],
+    "must_hit": ["FX012", "FX013", "FX014", "FX015", "FX016"],
+    "must_not_hit": ["FX001", "FX008", "FX017"],
     "notes": "Recon burst rule should match only sensitive-path 404 burst above threshold."
+  },
+  "nginx_lfi_path_traversal_probe": {
+    "must_hit": ["FX019", "FX020"],
+    "must_not_hit": ["FX001", "FX021", "FX025"],
+    "notes": "LFI traversal rule should hit traversal payloads targeting sensitive files."
+  },
+  "nginx_sensitive_file_access": {
+    "must_hit": ["FX022", "FX023", "FX024"],
+    "must_not_hit": ["FX001", "FX025", "FX039"],
+    "notes": "Sensitive file rule should detect direct requests to exposed config/secret paths."
+  },
+  "nginx_scanner_user_agent": {
+    "must_hit": ["FX004", "FX010", "FX012", "FX026"],
+    "must_not_hit": ["FX001", "FX027", "FX028"],
+    "notes": "Scanner user-agent rule should tag known tooling while avoiding routine browser traffic."
+  },
+  "nginx_login_bruteforce_burst": {
+    "must_hit": ["FX028", "FX029", "FX030", "FX031", "FX032"],
+    "must_not_hit": ["FX001", "FX003", "FX033"],
+    "notes": "Login brute-force rule should trigger only for sustained failed auth bursts from one source."
+  },
+  "nginx_command_injection_query": {
+    "must_hit": ["FX034", "FX035", "FX036"],
+    "must_not_hit": ["FX001", "FX037", "FX040"],
+    "notes": "Command injection rule should detect shell metacharacter payloads, not benign cmd parameters."
+  },
+  "nginx_phpunit_eval_stdin_probe": {
+    "must_hit": ["FX038"],
+    "must_not_hit": ["FX001", "FX039", "FX040"],
+    "notes": "PHPUnit rule should detect direct requests to the eval-stdin exploit path only."
+  },
+  "nginx_xss_query_probe": {
+    "must_hit": ["FX040", "FX041"],
+    "must_not_hit": ["FX001", "FX037", "FX042"],
+    "notes": "XSS query rule should detect encoded script/event-handler probes and avoid generic search strings."
   }
 }
