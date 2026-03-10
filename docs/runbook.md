@@ -69,3 +69,11 @@ Run offline detection checks:
 ```bash
 python3 scripts/test_detections.py
 ```
+
+Run local CI-style detection quality gates:
+```bash
+scripts/check_detection_pack.sh
+```
+
+For interview-grade visual evidence capture, use:
+- `docs/kibana_screenshot_checklist.md`

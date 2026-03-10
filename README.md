@@ -10,11 +10,12 @@
   - `kibana.tls.yml` (TLS uses service account token)
 - Project-scoped Elasticsearch data volumes by Compose project name (`-p`)
 
-## Main Features (upcoming)
-- **Preconfigured parsers** (pipelines / ingestion)
-- **Dashboards** (operational views)
-- **Triage logic** (queries, filters, maybe rule tuning)
-- **Evaluating alert quality** (signal-to-noise, FP reduction)
+## Main Features
+- Hardened mode-aware ELK deploy automation (`baseline` and `tls`)
+- Offline detection engineering pack for Nginx with schema-gated rule contracts
+- Fixture-driven validation harness with explicit `must_hit` / `must_not_hit` assertions
+- Exported stack evidence artifacts and screenshot capture workflow
+- Batch-based scaling model from 3 validated rules to 10+ with quality gates
 
 ## Quick Start
 ---
@@ -104,20 +105,30 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 - Triage template: `docs/triage_template.md`
 - Detection quality: `docs/detection_quality.md`
 - ATT&CK mapping: `docs/mitre_mapping.md`
+- Native screenshot checklist: `docs/kibana_screenshot_checklist.md`
 - Phase 3 validation checklist: `docs/phase3_validation_checklist.md`
 - Phase 4 scaling plan: `docs/phase4_scaling_plan.md`
+- Phase 4 Batch A scorecard: `docs/phase4_batch_a_scorecard.md`
+- Phase 4 Batch B scorecard: `docs/phase4_batch_b_scorecard.md`
+- Interview narrative notes: `docs/interview_narrative.md`
 - Security policy: `SECURITY.md`
 - Contribution guide: `CONTRIBUTING.md`
 
 ### Detection Pack (Offline Validation)
 - Field contract: `config/detections/field_contract.md`
-- Nginx detection pack: `config/detections/nginx/`
+- Nginx detection pack (10 rules): `config/detections/nginx/`
 - Fixtures: `samples/logs/nginx_access.log`
 - Expected outcomes: `tests/expected_hits.json`
+- Rule schema contract: `config/detections/rule.schema.json`
 
 Run the offline harness:
 ```bash
 python3 scripts/test_detections.py
+```
+
+Run local CI-style quality gates:
+```bash
+scripts/check_detection_pack.sh
 ```
 
 ## Certificates (manual, streamlined)

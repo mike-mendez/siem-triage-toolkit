@@ -1,38 +1,43 @@
-# Detection Quality Notes (Phase 2)
+# Detection Quality Notes (Phase 4)
 
 ## Objective
-Define practical quality standards for this detection pack before stack validation.
+Scale to 10 Nginx detections without sacrificing correctness, explainability, or testability.
 
 ## Quality Dimensions
 1. Precision
    - Alerts should represent meaningful suspicious behavior.
-   - Minimize matches from routine application traffic.
+   - Known benign fixture traffic should remain outside `must_not_hit` assertions.
 2. Recall
-   - Rules should catch core attack patterns represented in fixtures.
+   - Every rule has explicit `must_hit` fixtures proving hypothesis coverage.
 3. Explainability
-   - Each rule must map to ATT&CK and include triage guidance.
+   - Each rule includes hypothesis, ATT&CK mapping, false-positive context, and playbook linkage.
 4. Testability
-   - Every rule must have `must_hit` and `must_not_hit` assertions.
+   - Rule schema, fixture integrity, and expected outcomes are enforced in automation.
 
 ## Expected False Positive Sources
 - Internal vulnerability scanners and security QA jobs.
-- Synthetic tests from engineering environments.
-- Bot traffic probing common endpoints.
+- Synthetic red-team or consultant replay traffic.
+- Bot traffic probing common internet-facing paths.
 
 ## Tuning Levers
-- Thresholds (`min_count`) for burst-style detections.
-- Path/query allowlists for known safe scanners.
-- Source IP allowlists for internal tooling.
-- Route-based suppression for intentionally noisy endpoints.
+- Threshold values (`min_count`) for burst logic.
+- Source IP allowlists for authorized scanners.
+- Route/path allowlists for controlled test endpoints.
+- Payload-pattern suppressions for known benign automation.
 
-## Pass/Fail Quality Gate for Phase 2
-- `python3 scripts/test_detections.py` returns success.
-- All rules include:
-  - hypothesis and ATT&CK mapping
-  - false positives
-  - tuning guidance
-  - linked triage playbook
+## Phase 4 Quality Gates
+- Gate 1: Rule metadata contract passes `config/detections/rule.schema.json`.
+- Gate 2: Fixture and expected-hit contracts are complete and internally consistent.
+- Gate 3: Rule outcomes satisfy all `must_hit`/`must_not_hit` assertions.
+- Gate 4: Evidence references are canonical and current.
 
-## Phase 3 Upgrade Targets
-- Measure alert rates against ingested fixture and near-real traffic.
-- Add suppression logic only after observed false positives are documented.
+## Validation Commands
+```bash
+python3 scripts/test_detections.py
+scripts/check_detection_pack.sh
+```
+
+## Phase 4 Upgrade Targets
+- Expand from 3 to 10 rules in controlled batches with quality gates staying green.
+- Keep Nginx as the primary source until batch quality is stable.
+- Add stack spot-check parity for representative rules in baseline and TLS modes.

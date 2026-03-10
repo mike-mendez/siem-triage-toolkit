@@ -28,6 +28,9 @@ Validate Phase 2 detections in a running ELK stack and produce portfolio-ready e
    - `python3 scripts/phase3_capture_evidence.py --es-url https://localhost:9200 --ca-cert certs/ca/ca.crt --username elastic --password "$ELASTIC_PASSWORD" --mode-label tls`
 7. Optional post-validation generator:
    - `python3 scripts/gen_nginx_attack_logs.py`
+8. Native UI evidence capture:
+   - Follow `docs/kibana_screenshot_checklist.md`
+   - Keep only mode-specific screenshot names in references
 
 ## Acceptance Criteria
 - All 3 rules observed firing on intended fixtures.
@@ -37,3 +40,4 @@ Validate Phase 2 detections in a running ELK stack and produce portfolio-ready e
   - `dashboard.ndjson` non-empty
   - `timelines.ndjson` contains exported timelines or explicit `no_timelines_defined` marker
 - Visual evidence exists for portfolio/demo usage.
+- `docs/phase3_results.md` remains canonical (no duplicate mode append blocks).
