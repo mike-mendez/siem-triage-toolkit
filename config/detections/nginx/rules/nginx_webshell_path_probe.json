@@ -1,0 +1,46 @@
+{
+  "rule_id": "nginx_webshell_path_probe",
+  "name": "Nginx Webshell Path Probe",
+  "source": "nginx.access",
+  "severity": "high",
+  "detection_logic": {
+    "type": "regex_any",
+    "fields": [
+      "url.path",
+      "url.original"
+    ],
+    "patterns": [
+      "(?:^|/)shell\\.php(?:$|\\?)",
+      "(?:^|/)cmd\\.php(?:$|\\?)",
+      "/wp-content/uploads/.*\\.php(?:$|\\?)",
+      "/cgi-bin/\\.%(?:2e|2E)/\\.%(?:2e|2E)/\\.%(?:2e|2E)/bin/sh"
+    ],
+    "case_insensitive": true
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "http.request.method",
+    "url.path",
+    "url.original",
+    "http.response.status_code",
+    "user_agent.original"
+  ],
+  "mitre": {
+    "tactic": "Persistence",
+    "technique_id": "T1505.003",
+    "technique": "Web Shell"
+  },
+  "false_positives": [
+    "Authorized red-team activity",
+    "Deliberate vulnerability scanning against known test paths"
+  ],
+  "tuning": {
+    "allowlist_source_ips": [],
+    "allowlist_path_regex": []
+  },
+  "references": [
+    "https://attack.mitre.org/techniques/T1505/003/"
+  ],
+  "playbook": "config/detections/nginx/playbooks/nginx_webshell_path_probe.md"
+}

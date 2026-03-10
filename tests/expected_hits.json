@@ -1,0 +1,43 @@
+{
+  "nginx_sqli_querystring": {
+    "must_hit": [
+      "FX004",
+      "FX005",
+      "FX006"
+    ],
+    "must_not_hit": [
+      "FX001",
+      "FX007",
+      "FX012"
+    ],
+    "notes": "SQLi pattern rule should detect encoded and plain SQLi fragments only."
+  },
+  "nginx_webshell_path_probe": {
+    "must_hit": [
+      "FX008",
+      "FX009",
+      "FX010"
+    ],
+    "must_not_hit": [
+      "FX001",
+      "FX011",
+      "FX018"
+    ],
+    "notes": "Webshell rule should detect suspicious shell paths and traversal probes."
+  },
+  "nginx_404_recon_burst": {
+    "must_hit": [
+      "FX012",
+      "FX013",
+      "FX014",
+      "FX015",
+      "FX016"
+    ],
+    "must_not_hit": [
+      "FX001",
+      "FX008",
+      "FX017"
+    ],
+    "notes": "Recon burst rule should match only sensitive-path 404 burst above threshold."
+  }
+}

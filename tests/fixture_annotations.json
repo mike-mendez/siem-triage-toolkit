@@ -1,0 +1,110 @@
+[
+  {
+    "fixture_id": "FX001",
+    "line_number": 1,
+    "category": "benign",
+    "note": "Normal homepage request."
+  },
+  {
+    "fixture_id": "FX002",
+    "line_number": 2,
+    "category": "benign",
+    "note": "Static asset fetch."
+  },
+  {
+    "fixture_id": "FX003",
+    "line_number": 3,
+    "category": "ambiguous",
+    "note": "Authentication failure, not part of this detection set."
+  },
+  {
+    "fixture_id": "FX004",
+    "line_number": 4,
+    "category": "attack",
+    "note": "URL-encoded OR 1=1 SQLi style payload."
+  },
+  {
+    "fixture_id": "FX005",
+    "line_number": 5,
+    "category": "attack",
+    "note": "UNION SELECT SQLi style payload."
+  },
+  {
+    "fixture_id": "FX006",
+    "line_number": 6,
+    "category": "attack",
+    "note": "Time-based SQLi style payload."
+  },
+  {
+    "fixture_id": "FX007",
+    "line_number": 7,
+    "category": "benign",
+    "note": "Contains the term union but not SQLi syntax."
+  },
+  {
+    "fixture_id": "FX008",
+    "line_number": 8,
+    "category": "attack",
+    "note": "Direct shell.php probe with cmd parameter."
+  },
+  {
+    "fixture_id": "FX009",
+    "line_number": 9,
+    "category": "attack",
+    "note": "Direct cmd.php probe."
+  },
+  {
+    "fixture_id": "FX010",
+    "line_number": 10,
+    "category": "attack",
+    "note": "Traversal-to-shell style CGI probe."
+  },
+  {
+    "fixture_id": "FX011",
+    "line_number": 11,
+    "category": "benign",
+    "note": "Legitimate index.php request."
+  },
+  {
+    "fixture_id": "FX012",
+    "line_number": 12,
+    "category": "attack",
+    "note": "Recon burst step 1."
+  },
+  {
+    "fixture_id": "FX013",
+    "line_number": 13,
+    "category": "attack",
+    "note": "Recon burst step 2."
+  },
+  {
+    "fixture_id": "FX014",
+    "line_number": 14,
+    "category": "attack",
+    "note": "Recon burst step 3."
+  },
+  {
+    "fixture_id": "FX015",
+    "line_number": 15,
+    "category": "attack",
+    "note": "Recon burst step 4."
+  },
+  {
+    "fixture_id": "FX016",
+    "line_number": 16,
+    "category": "attack",
+    "note": "Recon burst step 5 (threshold reached)."
+  },
+  {
+    "fixture_id": "FX017",
+    "line_number": 17,
+    "category": "ambiguous",
+    "note": "Single random 404 should not trigger recon-burst rule."
+  },
+  {
+    "fixture_id": "FX018",
+    "line_number": 18,
+    "category": "benign",
+    "note": "Routine probe endpoint check."
+  }
+]
