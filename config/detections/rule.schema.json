@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Nginx Detection Rule Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rule_id",
+    "name",
+    "hypothesis",
+    "source",
+    "severity",
+    "detection_logic",
+    "required_fields",
+    "mitre",
+    "false_positives",
+    "tuning",
+    "references",
+    "playbook"
+  ],
+  "properties": {
+    "rule_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "minLength": 3
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5
+    },
+    "hypothesis": {
+      "type": "string",
+      "minLength": 15
+    },
+    "source": {
+      "type": "string",
+      "const": "nginx.access"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "detection_logic": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "fields", "patterns"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "regex_any"
+            },
+            "fields": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1
+            },
+            "patterns": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1
+            },
+            "case_insensitive": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "group_by", "where", "min_count"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "threshold_count"
+            },
+            "group_by": {
+              "type": "string",
+              "minLength": 1
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["field"],
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {},
+                  "regex": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "oneOf": [
+                  { "required": ["equals"] },
+                  { "required": ["regex"] }
+                ]
+              }
+            },
+            "case_insensitive": {
+              "type": "boolean"
+            },
+            "min_count": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      ]
+    },
+    "required_fields": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "mitre": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tactic", "technique_id", "technique"],
+      "properties": {
+        "tactic": { "type": "string", "minLength": 2 },
+        "technique_id": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+        "technique": { "type": "string", "minLength": 3 }
+      }
+    },
+    "false_positives": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "tuning": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "playbook": {
+      "type": "string",
+      "pattern": "^config/detections/nginx/playbooks/[a-z0-9_]+\\.md$"
+    }
+  }
+}
