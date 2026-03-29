@@ -235,8 +235,6 @@ def main() -> int:
             "fixture_note": fixture_note,
             "fixture_category": fixture_category,
         }
-        ts = parse_line(raw)["event"]["original"]  # not used directly, keep parsing consistent
-        del ts
         nginx_ts = re.search(r"\[(?P<ts>[^\]]+)\]", raw)
         if nginx_ts:
             event["@timestamp"] = to_iso8601(nginx_ts.group("ts"))
