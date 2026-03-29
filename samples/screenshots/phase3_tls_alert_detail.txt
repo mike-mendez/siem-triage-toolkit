@@ -1,9 +1,0 @@
-Phase 3 Alert Detail (tls)
-
-@timestamp: 2026-03-10T19:20:29.885Z
-rule_id: phase3_nginx_webshell_path_probe
-severity: high
-source.ip: 203.0.113.62
-url.original: /cgi-bin/.%2e/.%2e/.%2e/bin/sh
-url.path: /cgi-bin/.%2e/.%2e/.%2e/bin/sh
-status: 400
