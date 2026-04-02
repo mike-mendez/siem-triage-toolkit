@@ -6,10 +6,7 @@
   "severity": "high",
   "detection_logic": {
     "type": "regex_any",
-    "fields": [
-      "url.path",
-      "url.original"
-    ],
+    "fields": ["url.path", "url.original"],
     "patterns": [
       "(?:^|/)shell\\.php(?:$|\\?)",
       "(?:^|/)cmd\\.php(?:$|\\?)",
@@ -40,8 +37,6 @@
     "allowlist_source_ips": [],
     "allowlist_path_regex": []
   },
-  "references": [
-    "https://attack.mitre.org/techniques/T1505/003/"
-  ],
+  "references": ["https://attack.mitre.org/techniques/T1505/003/"],
   "playbook": "config/detections/nginx/playbooks/nginx_webshell_path_probe.md"
 }

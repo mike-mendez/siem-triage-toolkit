@@ -97,10 +97,7 @@
                     "minLength": 1
                   }
                 },
-                "oneOf": [
-                  { "required": ["equals"] },
-                  { "required": ["regex"] }
-                ]
+                "oneOf": [{ "required": ["equals"] }, { "required": ["regex"] }]
               }
             },
             "case_insensitive": {
@@ -125,7 +122,10 @@
       "required": ["tactic", "technique_id", "technique"],
       "properties": {
         "tactic": { "type": "string", "minLength": 2 },
-        "technique_id": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+        "technique_id": {
+          "type": "string",
+          "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+        },
         "technique": { "type": "string", "minLength": 3 }
       }
     },

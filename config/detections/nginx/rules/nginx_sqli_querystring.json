@@ -6,10 +6,7 @@
   "severity": "medium",
   "detection_logic": {
     "type": "regex_any",
-    "fields": [
-      "url.original",
-      "url.query"
-    ],
+    "fields": ["url.original", "url.query"],
     "patterns": [
       "(?:%27|\\'|')(?:%20|\\s)*or(?:%20|\\s)*1(?:%3[dD]|=)1",
       "union(?:%20|\\s)+select",
@@ -37,14 +34,9 @@
     "Application QA traffic replaying attack test payloads"
   ],
   "tuning": {
-    "allowlist_path_prefixes": [
-      "/qa/",
-      "/security-test/"
-    ],
+    "allowlist_path_prefixes": ["/qa/", "/security-test/"],
     "allowlist_source_ips": []
   },
-  "references": [
-    "https://attack.mitre.org/techniques/T1190/"
-  ],
+  "references": ["https://attack.mitre.org/techniques/T1190/"],
   "playbook": "config/detections/nginx/playbooks/nginx_sqli_querystring.md"
 }

@@ -40,8 +40,6 @@
     "sensitive_path_regex": "^/(wp-admin|wp-login\\.php|\\.env|phpmyadmin|admin)/?$",
     "allowlist_source_ips": []
   },
-  "references": [
-    "https://attack.mitre.org/techniques/T1595/"
-  ],
+  "references": ["https://attack.mitre.org/techniques/T1595/"],
   "playbook": "config/detections/nginx/playbooks/nginx_404_recon_burst.md"
 }

@@ -6,9 +6,7 @@
   "severity": "high",
   "detection_logic": {
     "type": "regex_any",
-    "fields": [
-      "url.path"
-    ],
+    "fields": ["url.path"],
     "patterns": [
       "^/(?:\\.git/config|wp-config\\.php|\\.env(?:\\.backup)?|backup\\.sql)$"
     ],
@@ -33,8 +31,6 @@
     "allowlist_source_ips": [],
     "sensitive_path_regex": "^/(?:\\.git/config|wp-config\\.php|\\.env(?:\\.backup)?|backup\\.sql)$"
   },
-  "references": [
-    "https://attack.mitre.org/techniques/T1595/"
-  ],
+  "references": ["https://attack.mitre.org/techniques/T1595/"],
   "playbook": "config/detections/nginx/playbooks/nginx_sensitive_file_access.md"
 }
