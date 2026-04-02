@@ -48,5 +48,10 @@
     "must_hit": ["FX040", "FX041"],
     "must_not_hit": ["FX001", "FX037", "FX042"],
     "notes": "XSS query rule should detect encoded script/event-handler probes and avoid generic search strings."
+  },
+  "nginx_sensitive_file_serve": {
+    "must_hit": ["FX023", "FX024", "FX043", "FX044"],
+    "must_not_hit": ["FX001", "FX045"],
+    "notes": "Successful sensitive file serve rule should detect successful requests to exposed sensitive paths."
   }
 }

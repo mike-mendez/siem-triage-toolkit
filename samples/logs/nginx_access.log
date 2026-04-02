@@ -40,3 +40,7 @@
 203.0.113.98 - - [09/Mar/2026:10:10:08 +0000] "GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E HTTP/1.1" 200 751 "https://app.example.local/search" "Mozilla/5.0"
 203.0.113.99 - - [09/Mar/2026:10:10:19 +0000] "GET /profile?name=%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E HTTP/1.1" 200 802 "https://app.example.local/profile" "Mozilla/5.0"
 198.51.100.25 - - [09/Mar/2026:10:10:31 +0000] "GET /search?q=alert(1) HTTP/1.1" 200 635 "https://app.example.local/search" "Mozilla/5.0"
+203.0.113.64 - - [01/Apr/2026:13:45:22 +0000] "GET /.env HTTP/1.1" 200 384 "-" "curl/8.5.0"
+203.0.113.88 - - [01/Apr/2026:13:47:22 +0000] "GET /wp-config.php HTTP/1.1" 200 578 "-" "curl/8.5.0"
+203.0.113.72 - - [01/Apr/2026:13:48:22 +0000] "GET /.env HTTP/1.1" 404 162 "-" "curl/8.5.0"
+203.0.113.77 - - [01/Apr/2026:13:58:22 +0000] "GET / HTTP/1.1" 200 4520 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"

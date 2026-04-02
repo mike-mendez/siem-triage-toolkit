@@ -1,0 +1,43 @@
+{
+  "rule_id": "nginx_sensitive_file_serve",
+  "name": "Nginx Successful Serve of Sensitive File",
+  "hypothesis": "An HTTP 200 response to a known-sensitive path indicates the server successfully served a resource that should not be publicly accessible.",
+  "source": "nginx.access",
+  "severity": "high",
+  "detection_logic": {
+    "type": "threshold_count",
+    "group_by": "source.ip",
+    "where": [
+      {
+        "field": "url.path",
+        "regex": "^/(?:\\.env(?:.backup)?|wp-config\\.php|\\.git/config|backup\\.sql|dump\\.sql|phpinfo\\.php|database\\.yml|\\.htpasswd)$"
+      },
+      {
+        "field": "http.response.status_code",
+        "equals": 200
+      }
+    ],
+    "min_count": 1
+  },
+  "required_fields": [
+    "event.original",
+    "source.ip",
+    "url.path",
+    "http.response.status_code"
+  ],
+  "mitre": {
+    "tactic": "Discovery",
+    "technique_id": "T1083",
+    "technique": "File and Directory Discovery"
+  },
+  "false_positives": [
+    "Intentional security validation by trusted teams",
+    "Developer QA scripts targeting known sensitive file paths"
+  ],
+  "tuning": {
+    "allowlist_source_ips": "Exclude IPs belonging to authorized security scanners or internal QA",
+    "path_list": "Add or remove sensitive paths based on the application stack in use"
+  },
+  "references": ["https://attack.mitre.org/techniques/T1083/"],
+  "playbook": "config/detections/nginx/playbooks/nginx_sensitive_file_serve.md"
+}
