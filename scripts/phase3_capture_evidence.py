@@ -21,7 +21,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 RULE_IDS = [
     "phase3_nginx_sqli_querystring",
     "phase3_nginx_webshell_path_probe",
@@ -105,7 +104,10 @@ def main() -> int:
     mode_slug = args.mode_label.lower().replace(" ", "_")
     captured_at = datetime.now(timezone.utc).isoformat()
 
-    headers = {"Authorization": auth_header(args.username, args.password), "Content-Type": "application/json"}
+    headers = {
+        "Authorization": auth_header(args.username, args.password),
+        "Content-Type": "application/json",
+    }
     es_url = args.es_url.rstrip("/")
     evidence_dir = Path("samples/evidence")
 
@@ -141,7 +143,14 @@ def main() -> int:
             "status": {"terms": {"field": "http.response.status_code", "size": 10}},
             "status_404_over_time": {
                 "filter": {"term": {"http.response.status_code": 404}},
-                "aggs": {"per_min": {"date_histogram": {"field": "@timestamp", "calendar_interval": "1m"}}},
+                "aggs": {
+                    "per_min": {
+                        "date_histogram": {
+                            "field": "@timestamp",
+                            "calendar_interval": "1m",
+                        }
+                    }
+                },
             },
         },
     }
@@ -161,7 +170,9 @@ def main() -> int:
     # --- Query 3: Fetch alert counts by rule ---
     rule_count_query = {
         "size": 0,
-        "aggs": {"by_rule": {"terms": {"field": "kibana.alert.rule.rule_id", "size": 10}}},
+        "aggs": {
+            "by_rule": {"terms": {"field": "kibana.alert.rule.rule_id", "size": 10}}
+        },
         "query": {"terms": {"kibana.alert.rule.rule_id": RULE_IDS}},
     }
     by_rule_resp = request_json(
@@ -174,10 +185,16 @@ def main() -> int:
     )
     by_rule = {
         bucket["key"]: bucket["doc_count"]
-        for bucket in by_rule_resp.get("aggregations", {}).get("by_rule", {}).get("buckets", [])
+        for bucket in by_rule_resp.get("aggregations", {})
+        .get("by_rule", {})
+        .get("buckets", [])
     }
     save_json(
-        {"captured_at": captured_at, "query": rule_count_query, "response": by_rule_resp},
+        {
+            "captured_at": captured_at,
+            "query": rule_count_query,
+            "response": by_rule_resp,
+        },
         evidence_dir / f"phase3_{mode_slug}_rule_counts.json",
     )
 
@@ -239,7 +256,10 @@ def main() -> int:
             if mode_slug == "baseline"
             else "## TLS Validation (HTTPS)"
         )
-        if canonical_marker not in existing and f"**Mode validated:** {args.mode_label}" not in existing:
+        if (
+            canonical_marker not in existing
+            and f"**Mode validated:** {args.mode_label}" not in existing
+        ):
             results_path.write_text(
                 existing.rstrip() + "\n\n---\n\n" + "\n".join(summary_lines[2:]) + "\n",
                 encoding="utf-8",

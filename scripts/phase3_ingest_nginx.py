@@ -10,13 +10,13 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import re
 import ssl
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-import re
 
 
 def load_annotations(path: Path) -> dict[int, dict[str, object]]:
@@ -54,7 +54,10 @@ def parse_line(raw_line: str) -> dict[str, object]:
         "event": {"dataset": "nginx.access", "original": raw_line},
         "source": {"ip": match.group("ip")},
         "http": {
-            "request": {"method": match.group("method"), "referrer": match.group("ref")},
+            "request": {
+                "method": match.group("method"),
+                "referrer": match.group("ref"),
+            },
             "response": {"status_code": int(match.group("status"))},
         },
         "url": {"original": target, "path": path, "query": query},
@@ -149,7 +152,9 @@ def build_mapping() -> dict[str, object]:
                                 "referrer": {"type": "wildcard"},
                             }
                         },
-                        "response": {"properties": {"status_code": {"type": "integer"}}},
+                        "response": {
+                            "properties": {"status_code": {"type": "integer"}}
+                        },
                     }
                 },
                 "url": {
@@ -182,7 +187,9 @@ def main() -> int:
     parser.add_argument("--annotations", default="tests/fixture_annotations.json")
     parser.add_argument("--insecure", action="store_true", help="Skip TLS verification")
     parser.add_argument("--ca-cert", default="", help="CA certificate for HTTPS ES")
-    parser.add_argument("--skip-delete", action="store_true", help="Do not delete existing index")
+    parser.add_argument(
+        "--skip-delete", action="store_true", help="Do not delete existing index"
+    )
     args = parser.parse_args()
 
     es_url = args.es_url.rstrip("/")
@@ -203,9 +210,13 @@ def main() -> int:
     }
 
     if not args.skip_delete:
-        code, _ = request_json("DELETE", f"{es_url}/{args.index}", headers, insecure=args.insecure)
+        code, _ = request_json(
+            "DELETE", f"{es_url}/{args.index}", headers, insecure=args.insecure
+        )
         if code not in (200, 404):
-            raise RuntimeError(f"Failed deleting existing index '{args.index}' (HTTP {code})")
+            raise RuntimeError(
+                f"Failed deleting existing index '{args.index}' (HTTP {code})"
+            )
 
     code, body = request_json(
         "PUT",
@@ -215,10 +226,16 @@ def main() -> int:
         insecure=args.insecure,
     )
     if code not in (200, 201):
-        raise RuntimeError(f"Failed creating index '{args.index}' (HTTP {code}): {body}")
+        raise RuntimeError(
+            f"Failed creating index '{args.index}' (HTTP {code}): {body}"
+        )
 
     annotations = load_annotations(annotations_path)
-    raw_lines = [line.rstrip("\n") for line in log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    raw_lines = [
+        line.rstrip("\n")
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     bulk_lines: list[str] = []
     sent = 0
@@ -240,7 +257,9 @@ def main() -> int:
             event["@timestamp"] = to_iso8601(nginx_ts.group("ts"))
         else:
             event["@timestamp"] = "1970-01-01T00:00:00+00:00"
-        bulk_lines.append(json.dumps({"index": {"_index": args.index, "_id": str(fixture_id)}}))
+        bulk_lines.append(
+            json.dumps({"index": {"_index": args.index, "_id": str(fixture_id)}})
+        )
         bulk_lines.append(json.dumps(event))
         sent += 1
 
@@ -248,7 +267,10 @@ def main() -> int:
     code, body = request_text(
         "POST",
         f"{es_url}/_bulk?refresh=true",
-        {"Authorization": headers["Authorization"], "Content-Type": "application/x-ndjson"},
+        {
+            "Authorization": headers["Authorization"],
+            "Content-Type": "application/x-ndjson",
+        },
         data=payload,
         insecure=args.insecure,
     )
@@ -257,7 +279,9 @@ def main() -> int:
 
     resp = json.loads(body)
     if resp.get("errors"):
-        failed = sum(1 for item in resp.get("items", []) if item.get("index", {}).get("error"))
+        failed = sum(
+            1 for item in resp.get("items", []) if item.get("index", {}).get("error")
+        )
         raise RuntimeError(f"Bulk ingest completed with errors; failed items: {failed}")
 
     count_code, count_body = request_json(
@@ -267,7 +291,9 @@ def main() -> int:
         raise RuntimeError(f"Could not verify count (HTTP {count_code}): {count_body}")
     indexed = json.loads(count_body).get("count", -1)
 
-    print(f"index={args.index} sent={sent} indexed={indexed} skipped={len(raw_lines) - sent}")
+    print(
+        f"index={args.index} sent={sent} indexed={indexed} skipped={len(raw_lines) - sent}"
+    )
     return 0
 
 

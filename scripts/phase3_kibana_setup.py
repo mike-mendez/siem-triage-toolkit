@@ -20,7 +20,6 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-
 RULE_DEFS = [
     {
         "rule_id": "phase3_nginx_sqli_querystring",
@@ -118,7 +117,9 @@ def request(
         return exc.code, exc.read().decode("utf-8")
 
 
-def ensure_detection_index(kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str) -> None:
+def ensure_detection_index(
+    kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str
+) -> None:
     code, body = request(
         "POST",
         f"{kibana_url}/api/detection_engine/index",
@@ -133,7 +134,9 @@ def ensure_detection_index(kibana_url: str, headers: dict[str, str], insecure: b
             raise RuntimeError(f"Detection index create failed (HTTP {code}): {body}")
 
 
-def delete_existing_rules(kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str) -> None:
+def delete_existing_rules(
+    kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str
+) -> None:
     for rule in RULE_DEFS:
         code, _ = request(
             "DELETE",
@@ -143,10 +146,14 @@ def delete_existing_rules(kibana_url: str, headers: dict[str, str], insecure: bo
             ca_cert=ca_cert,
         )
         if code not in (200, 404):
-            raise RuntimeError(f"Failed deleting existing rule {rule['rule_id']} (HTTP {code})")
+            raise RuntimeError(
+                f"Failed deleting existing rule {rule['rule_id']} (HTTP {code})"
+            )
 
 
-def create_rules(kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str) -> None:
+def create_rules(
+    kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str
+) -> None:
     for rule in RULE_DEFS:
         payload = {
             "rule_id": rule["rule_id"],
@@ -175,10 +182,14 @@ def create_rules(kibana_url: str, headers: dict[str, str], insecure: bool, ca_ce
             ca_cert=ca_cert,
         )
         if code not in (200, 201):
-            raise RuntimeError(f"Failed creating rule {rule['rule_id']} (HTTP {code}): {body}")
+            raise RuntimeError(
+                f"Failed creating rule {rule['rule_id']} (HTTP {code}): {body}"
+            )
 
 
-def upsert_data_view(kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str) -> str:
+def upsert_data_view(
+    kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str
+) -> str:
     data_view_id = "phase3-nginx-data-view"
     payload = {
         "data_view": {
@@ -208,7 +219,13 @@ def vis_state_top_terms(title: str, field: str) -> str:
             "title": title,
             "type": "pie",
             "aggs": [
-                {"id": "1", "enabled": True, "type": "count", "schema": "metric", "params": {}},
+                {
+                    "id": "1",
+                    "enabled": True,
+                    "type": "count",
+                    "schema": "metric",
+                    "params": {},
+                },
                 {
                     "id": "2",
                     "enabled": True,
@@ -233,7 +250,13 @@ def vis_state_404_over_time() -> str:
             "title": "404s Over Time",
             "type": "line",
             "aggs": [
-                {"id": "1", "enabled": True, "type": "count", "schema": "metric", "params": {}},
+                {
+                    "id": "1",
+                    "enabled": True,
+                    "type": "count",
+                    "schema": "metric",
+                    "params": {},
+                },
                 {
                     "id": "2",
                     "enabled": True,
@@ -276,7 +299,13 @@ def create_visualization(
             "version": 1,
             "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps(search_source)},
         },
-        "references": [{"id": data_view_id, "name": "kibanaSavedObjectMeta.searchSourceJSON.index", "type": "index-pattern"}],
+        "references": [
+            {
+                "id": data_view_id,
+                "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                "type": "index-pattern",
+            }
+        ],
     }
     code, body = request(
         "POST",
@@ -287,16 +316,40 @@ def create_visualization(
         ca_cert=ca_cert,
     )
     if code not in (200, 201):
-        raise RuntimeError(f"Failed creating visualization {vis_id} (HTTP {code}): {body}")
+        raise RuntimeError(
+            f"Failed creating visualization {vis_id} (HTTP {code}): {body}"
+        )
 
 
-def create_dashboard(kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str) -> str:
+def create_dashboard(
+    kibana_url: str, headers: dict[str, str], insecure: bool, ca_cert: str
+) -> str:
     dashboard_id = "phase3-nginx-dashboard"
     panels = [
-        {"panelIndex": "1", "gridData": {"x": 0, "y": 0, "w": 24, "h": 12, "i": "1"}, "type": "visualization", "id": "phase3-top-source-ips"},
-        {"panelIndex": "2", "gridData": {"x": 24, "y": 0, "w": 24, "h": 12, "i": "2"}, "type": "visualization", "id": "phase3-top-paths"},
-        {"panelIndex": "3", "gridData": {"x": 0, "y": 12, "w": 24, "h": 12, "i": "3"}, "type": "visualization", "id": "phase3-status-codes"},
-        {"panelIndex": "4", "gridData": {"x": 24, "y": 12, "w": 24, "h": 12, "i": "4"}, "type": "visualization", "id": "phase3-404-over-time"},
+        {
+            "panelIndex": "1",
+            "gridData": {"x": 0, "y": 0, "w": 24, "h": 12, "i": "1"},
+            "type": "visualization",
+            "id": "phase3-top-source-ips",
+        },
+        {
+            "panelIndex": "2",
+            "gridData": {"x": 24, "y": 0, "w": 24, "h": 12, "i": "2"},
+            "type": "visualization",
+            "id": "phase3-top-paths",
+        },
+        {
+            "panelIndex": "3",
+            "gridData": {"x": 0, "y": 12, "w": 24, "h": 12, "i": "3"},
+            "type": "visualization",
+            "id": "phase3-status-codes",
+        },
+        {
+            "panelIndex": "4",
+            "gridData": {"x": 24, "y": 12, "w": 24, "h": 12, "i": "4"},
+            "type": "visualization",
+            "id": "phase3-404-over-time",
+        },
     ]
     payload = {
         "attributes": {
@@ -305,7 +358,11 @@ def create_dashboard(kibana_url: str, headers: dict[str, str], insecure: bool, c
             "panelsJSON": json.dumps(panels),
             "optionsJSON": json.dumps({"useMargins": True, "hidePanelTitles": False}),
             "timeRestore": False,
-            "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps({"query": {"language": "kuery", "query": ""}, "filter": []})},
+            "kibanaSavedObjectMeta": {
+                "searchSourceJSON": json.dumps(
+                    {"query": {"language": "kuery", "query": ""}, "filter": []}
+                )
+            },
         },
         "references": [
             {"id": "phase3-top-source-ips", "name": "panel_1", "type": "visualization"},
@@ -327,8 +384,17 @@ def create_dashboard(kibana_url: str, headers: dict[str, str], insecure: bool, c
     return dashboard_id
 
 
-def export_rules(kibana_url: str, headers: dict[str, str], out_path: Path, insecure: bool, ca_cert: str) -> None:
-    payload = {"objects": [{"rule_id": r["rule_id"]} for r in RULE_DEFS], "exclude_export_details": True}
+def export_rules(
+    kibana_url: str,
+    headers: dict[str, str],
+    out_path: Path,
+    insecure: bool,
+    ca_cert: str,
+) -> None:
+    payload = {
+        "objects": [{"rule_id": r["rule_id"]} for r in RULE_DEFS],
+        "exclude_export_details": True,
+    }
     code, body = request(
         "POST",
         f"{kibana_url}/api/detection_engine/rules/_export",
@@ -350,7 +416,10 @@ def export_dashboard(
     insecure: bool,
     ca_cert: str,
 ) -> None:
-    payload = {"objects": [{"type": "dashboard", "id": dashboard_id}], "includeReferencesDeep": True}
+    payload = {
+        "objects": [{"type": "dashboard", "id": dashboard_id}],
+        "includeReferencesDeep": True,
+    }
     code, body = request(
         "POST",
         f"{kibana_url}/api/saved_objects/_export",
@@ -386,7 +455,9 @@ def export_timelines(
         out_path.write_text(body, encoding="utf-8")
     else:
         # Keep artifact deterministic when no timelines are defined yet.
-        out_path.write_text('{"meta":"no_timelines_defined","exported":0}\n', encoding="utf-8")
+        out_path.write_text(
+            '{"meta":"no_timelines_defined","exported":0}\n', encoding="utf-8"
+        )
 
 
 def wait_for_alerts(
@@ -399,8 +470,12 @@ def wait_for_alerts(
     end = time.time() + timeout_sec
     query = {
         "size": 0,
-        "query": {"terms": {"kibana.alert.rule.rule_id": [r["rule_id"] for r in RULE_DEFS]}},
-        "aggs": {"by_rule": {"terms": {"field": "kibana.alert.rule.rule_id", "size": 10}}},
+        "query": {
+            "terms": {"kibana.alert.rule.rule_id": [r["rule_id"] for r in RULE_DEFS]}
+        },
+        "aggs": {
+            "by_rule": {"terms": {"field": "kibana.alert.rule.rule_id", "size": 10}}
+        },
     }
     url = f"{es_url.rstrip('/')}/.internal.alerts-security.alerts-*/_search"
     while time.time() < end:
@@ -446,7 +521,9 @@ def main() -> int:
     delete_existing_rules(args.kibana_url, kbn_headers, args.insecure, args.ca_cert)
     create_rules(args.kibana_url, kbn_headers, args.insecure, args.ca_cert)
 
-    data_view_id = upsert_data_view(args.kibana_url, kbn_headers, args.insecure, args.ca_cert)
+    data_view_id = upsert_data_view(
+        args.kibana_url, kbn_headers, args.insecure, args.ca_cert
+    )
     create_visualization(
         args.kibana_url,
         kbn_headers,
@@ -488,7 +565,9 @@ def main() -> int:
         insecure=args.insecure,
         ca_cert=args.ca_cert,
     )
-    dashboard_id = create_dashboard(args.kibana_url, kbn_headers, args.insecure, args.ca_cert)
+    dashboard_id = create_dashboard(
+        args.kibana_url, kbn_headers, args.insecure, args.ca_cert
+    )
 
     rules_export = Path(args.rules_export)
     dashboard_export = Path(args.dashboard_export)
@@ -497,11 +576,24 @@ def main() -> int:
     dashboard_export.parent.mkdir(parents=True, exist_ok=True)
     timelines_export.parent.mkdir(parents=True, exist_ok=True)
 
-    export_rules(args.kibana_url, kbn_headers, rules_export, args.insecure, args.ca_cert)
-    export_dashboard(args.kibana_url, kbn_headers, dashboard_id, dashboard_export, args.insecure, args.ca_cert)
-    export_timelines(args.kibana_url, kbn_headers, timelines_export, args.insecure, args.ca_cert)
+    export_rules(
+        args.kibana_url, kbn_headers, rules_export, args.insecure, args.ca_cert
+    )
+    export_dashboard(
+        args.kibana_url,
+        kbn_headers,
+        dashboard_id,
+        dashboard_export,
+        args.insecure,
+        args.ca_cert,
+    )
+    export_timelines(
+        args.kibana_url, kbn_headers, timelines_export, args.insecure, args.ca_cert
+    )
 
-    counts = wait_for_alerts(args.es_url, es_headers, args.insecure, args.ca_cert, timeout_sec=210)
+    counts = wait_for_alerts(
+        args.es_url, es_headers, args.insecure, args.ca_cert, timeout_sec=210
+    )
     if counts:
         print("alerts_ready=true")
         for rule in RULE_DEFS:
