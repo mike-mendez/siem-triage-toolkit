@@ -1,0 +1,20 @@
+{
+  "alert_id": "kibana-rule-0007-20260512T141233Z",
+  "@timestamp": "2026-05-12T14:12:33Z",
+  "rule": {
+    "id": "nginx-sqli-attempt",
+    "name": "Nginx - SQL injection attempt in request path",
+    "source": "config/detections/nginx/"
+  },
+  "event": {
+    "source_ip": "203.0.113.47",
+    "http_method": "GET",
+    "request_path": "/products?id=1%27%20OR%20%271%27%3D%271",
+    "user_agent": "sqlmap/1.7.2#stable (https://sqlmap.org)",
+    "status_code": 200,
+    "bytes_sent": 5120,
+    "host": "shop.example.internal"
+  },
+  "log_source": "samples/logs/nginx_access.log",
+  "note": "Sample alert for exercising the agentic triage pipeline. source_ip is a documentation-range (TEST-NET-3) address; no real lookups apply."
+}

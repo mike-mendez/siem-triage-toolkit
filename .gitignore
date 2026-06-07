@@ -16,5 +16,9 @@ __pycache__/
 # Misc.
 notes/
 
-# AI
-.claude/
+# Generated triage artifacts (keep the lane structure, ignore the output)
+triage/incidents/*
+triage/enrichment/*
+triage/correlation/*
+triage/reports/*
+!triage/**/.gitkeep

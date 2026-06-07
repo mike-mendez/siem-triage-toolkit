@@ -1,0 +1,34 @@
+{
+  "agent": "orchestrator",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "tool == \"Write\" || tool == \"Edit\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/agent-write-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Bash\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/no-prod-action-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "(tool == \"Write\" || tool == \"Edit\") && tool_input.file_path matches \"config/detections/\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/require-harness-pass.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
