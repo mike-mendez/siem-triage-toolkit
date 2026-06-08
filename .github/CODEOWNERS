@@ -1,0 +1,24 @@
+# Code owners for SECURITY-CRITICAL paths only.
+# These globs require @mike-mendez's review on changes to high-risk areas.
+# NOTE: CODEOWNERS is advisory until branch protection is configured to
+# "Require review from Code Owners" on master (a GitHub Settings change).
+#
+# Intentionally NOT a catch-all (`* @mike-mendez`): only the paths below are gated.
+
+# Agent definitions, hooks, and Claude Code settings (govern automated behavior)
+/.claude/                    @mike-mendez
+
+# CI/CD workflows (supply-chain & secret-scan backstop)
+/.github/workflows/          @mike-mendez
+/.github/dependabot.yml      @mike-mendez
+/.github/CODEOWNERS          @mike-mendez
+
+# Detection content (the security product itself)
+/config/detections/          @mike-mendez
+
+# Secret-scanning and commit-guard configuration
+/.gitleaks.toml              @mike-mendez
+/.pre-commit-config.yaml     @mike-mendez
+
+# Security & disclosure policy
+/SECURITY.md                 @mike-mendez
