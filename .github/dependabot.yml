@@ -1,8 +1,13 @@
 # Dependabot configuration.
-# Only github-actions is configured: it is the one ecosystem with trackable,
-# version-pinned dependencies in this repo (the workflow actions). There is no
-# Python manifest (scripts are stdlib-only) and compose images are pinned via the
-# ${STACK_VERSION} env var, so pip/docker have nothing Dependabot can update.
+#
+# github-actions is the only ecosystem with trackable dependencies *today*
+# (the workflow actions). pip and docker are configured proactively but are
+# currently inert:
+#   - pip:    no Python manifest exists yet (scripts are stdlib-only). Dependabot
+#             will start opening PRs once a requirements.txt/pyproject.toml lands.
+#   - docker: compose images are pinned via the ${STACK_VERSION} env var, which
+#             Dependabot cannot bump. It activates if an image gets a literal tag
+#             or a Dockerfile is added.
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -10,13 +15,39 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    # Let the community vet new releases before we get a PR (catches malicious
-    # releases); does not apply to security updates.
     cooldown:
       default-days: 5
     commit-message:
       prefix: "chore(deps)"
     groups:
       github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      pip:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      docker:
         patterns:
           - "*"
