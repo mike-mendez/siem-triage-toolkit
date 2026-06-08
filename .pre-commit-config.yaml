@@ -20,3 +20,15 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-merge-conflict
+
+  # Local guard: reject any commit message that reintroduces a Claude/Anthropic
+  # co-author or "Generated with Claude Code" trailer. Anchored to line start (?im)
+  # so it only catches real trailer lines, not prose that mentions the phrase.
+  # Deterministic backstop if the Claude Code `attribution` setting is ever absent.
+  - repo: local
+    hooks:
+      - id: block-claude-attribution
+        name: Block Claude co-author / generated-by trailers
+        language: pygrep
+        entry: '(?im)^[ \t]*(co-authored-by:.*(claude|anthropic)|(🤖[ \t]*)?generated with claude code)'
+        stages: [commit-msg]
