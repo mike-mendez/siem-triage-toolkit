@@ -21,6 +21,13 @@ repos:
       - id: trailing-whitespace
       - id: check-merge-conflict
 
+  # Enforce Conventional Commits at the commit-msg stage.
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.16.3
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
   # Local guard: reject any commit message that reintroduces a Claude/Anthropic
   # co-author or "Generated with Claude Code" trailer. Anchored to line start (?im)
   # so it only catches real trailer lines, not prose that mentions the phrase.
