@@ -1,0 +1,22 @@
+# Dependabot configuration.
+# Only github-actions is configured: it is the one ecosystem with trackable,
+# version-pinned dependencies in this repo (the workflow actions). There is no
+# Python manifest (scripts are stdlib-only) and compose images are pinned via the
+# ${STACK_VERSION} env var, so pip/docker have nothing Dependabot can update.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # Let the community vet new releases before we get a PR (catches malicious
+    # releases); does not apply to security updates.
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
