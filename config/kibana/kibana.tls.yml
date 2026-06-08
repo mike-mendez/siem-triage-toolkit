@@ -19,7 +19,7 @@ elasticsearch.ssl.certificateAuthorities:
   ["/usr/share/kibana/config/certs/ca/ca.crt"]
 elasticsearch.ssl.verificationMode: full
 
-# Security for enabling plugins & features (generated via docker command)
-xpack.encryptedSavedObjects.encryptionKey: "REDACTED"
-xpack.reporting.encryptionKey: "REDACTED"
-xpack.security.encryptionKey: "REDACTED"
+# Security for enabling plugins & features (read from environment; see .env / .env.example)
+xpack.encryptedSavedObjects.encryptionKey: "${XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY}"
+xpack.reporting.encryptionKey: "${XPACK_REPORTING_ENCRYPTIONKEY}"
+xpack.security.encryptionKey: "${XPACK_SECURITY_ENCRYPTIONKEY}"
