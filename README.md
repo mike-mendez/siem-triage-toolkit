@@ -141,13 +141,13 @@ This project uses a **local Certificate Authority (CA)** to issue (sign) TLS cer
 > **Never commit private keys** (`ca.key`, `*.key`). Only the public CA cert (`ca.crt`) is safe to share.
 
 ### What files exist and what they do
-- `certs/ca/ca.crt`  
+- `certs/ca/ca.crt`
   Public CA certificate. Used by clients (curl, Kibana) to **trust** server certificates.
-- `certs/ca/ca.key`  
+- `certs/ca/ca.key`
   CA private key. Used only to **sign** leaf certs. Must remain local.
-- `certs/elasticsearch/elasticsearch.crt` + `certs/elasticsearch/elasticsearch.key`  
+- `certs/elasticsearch/elasticsearch.crt` + `certs/elasticsearch/elasticsearch.key`
   Elasticsearch leaf cert + private key (server identity for HTTPS).
-- `certs/kibana/kibana.crt` + `certs/kibana/kibana.key`  
+- `certs/kibana/kibana.crt` + `certs/kibana/kibana.key`
   Kibana leaf cert + private key (server identity for HTTPS).
 
 ### How trust works (mental model)

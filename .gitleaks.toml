@@ -1,0 +1,28 @@
+# gitleaks configuration for siem-triage-toolkit
+# Extends the upstream default ruleset and adds only narrowly-scoped allowlist
+# entries for synthetic sample/fixture data. Every entry below is reserved
+# documentation data or simulated attacker input — never a real credential.
+# Real config dirs (config/, certs handling, .env*) remain fully scanned.
+
+title = "siem-triage-toolkit"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Narrow false-positive allowlist for synthetic sample/fixture data only"
+
+# Reason: RFC 5737 reserved documentation IP ranges used as synthetic source/client
+# addresses in sample alerts and the nginx fixture (e.g. 203.0.113.47). Reserved for
+# documentation; can never be a real host or secret.
+regexes = [
+  '''203\.0\.113\.\d{1,3}''',
+  '''198\.51\.100\.\d{1,3}''',
+]
+
+# Reason: synthetic nginx attack-traffic fixture; URL-encoded SQLi/webshell payloads
+# are simulated attacker input for exercising detections, not credentials. Scoped to
+# this single file only so samples/ and tests/ remain scanned for real secrets.
+paths = [
+  '''samples/logs/nginx_access\.log''',
+]

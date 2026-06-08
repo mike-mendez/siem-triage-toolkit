@@ -1,0 +1,27 @@
+name: security
+
+# Server-side backstop: scans full git history on every push and PR so a secret
+# can't reach the remote even if a contributor lacks the local pre-commit hook.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: gitleaks secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # scan all history, not just the pushed tip
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITLEAKS_LICENSE is only required for GitHub *organization* repos.
+          # This is a personal-account repo, so no license is needed.
