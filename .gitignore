@@ -22,3 +22,7 @@ triage/enrichment/*
 triage/correlation/*
 triage/reports/*
 !triage/**/.gitkeep
+
+# Claude Code local state
+.claude/worktrees/
+.claude/settings.local.json
