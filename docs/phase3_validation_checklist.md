@@ -33,7 +33,7 @@ Validate Phase 2 detections in a running ELK stack and produce portfolio-ready e
    - Keep only mode-specific screenshot names in references
 
 ## Acceptance Criteria
-- All 3 rules observed firing on intended fixtures.
+- All detection-pack rules observed firing on intended fixtures.
 - No critical schema mismatch between expected fields and ingested data.
 - Export files are populated and reusable:
   - `rules.ndjson` non-empty

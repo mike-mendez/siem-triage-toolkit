@@ -12,6 +12,7 @@
 | `nginx_command_injection_query` | Nginx Command Injection Query Probe | Initial Access | T1190 - Exploit Public-Facing Application |
 | `nginx_phpunit_eval_stdin_probe` | Nginx PHPUnit eval-stdin Probe | Initial Access | T1190 - Exploit Public-Facing Application |
 | `nginx_xss_query_probe` | Nginx Reflected XSS Query Probe | Initial Access | T1190 - Exploit Public-Facing Application |
+  | `nginx_sensitive_file_serve` | Nginx Successful Serve of Sensitive File | Discovery | T1083 - File and Directory Discovery |
 
 ## Required Data Source
 - Nginx access logs normalized to the field contract in:

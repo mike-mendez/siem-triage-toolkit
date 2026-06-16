@@ -4,6 +4,7 @@
 > ### Automates deploy-on-demand ELK-based SIEM stacks with preconfigured parsers, dashboards, and triage logic to rapidly ingest logs, test detections, and evaluate alert quality.
 
 ## Repo Provides
+- Agentic, human-gated triage pipeline on Claude Code (see **Agentic Triage Pipeline** below)
 - Docker Compose baseline (HTTP) and TLS overlay (HTTPS)
 - Kibana configs split into:
   - `kibana.http.yml` (baseline uses `kibana_system`)
@@ -11,11 +12,39 @@
 - Project-scoped Elasticsearch data volumes by Compose project name (`-p`)
 
 ## Main Features
+- Human-gated **agentic triage pipeline** (orchestrator + specialist subagents) that triages alerts and proposes detection tuning without acting on live infrastructure
 - Hardened mode-aware ELK deploy automation (`baseline` and `tls`)
 - Offline detection engineering pack for Nginx with schema-gated rule contracts
 - Fixture-driven validation harness with explicit `must_hit` / `must_not_hit` assertions
 - Exported stack evidence artifacts and screenshot capture workflow
-- Batch-based scaling model from 3 validated rules to 10+ with quality gates
+- Batch-based scaling model from 3 validated rules to 11 (and growing) with quality gates
+
+## Agentic Triage Pipeline
+
+A human-gated triage pipeline runs on Claude Code: an `orchestrator` agent drives a security
+alert through specialist subagents and proposes (never applies) detection tuning. Agents take
+**no autonomous action on live infrastructure** — they produce artifacts and recommendations,
+and a human ratifies the disposition before any rule change.
+
+```
+alert -> intake -> enrich -> correlate -> assess -> (human ratifies) -> tune -> validate
+```
+
+| Stage     | Agent             | Writes                                                  |
+| --------- | ----------------- | ------------------------------------------------------- |
+| Intake    | `alert-intake`    | `triage/incidents/<id>.md`                              |
+| Enrich    | `enricher`        | `triage/enrichment/<id>.md`                             |
+| Correlate | `correlator`      | `triage/correlation/<id>.md`                            |
+| Assess    | `analyst`         | `triage/reports/<id>.md`                                |
+| Tune      | `detection-tuner` | `config/detections/**` (only after the harness passes)  |
+
+Deterministic guard hooks enforce the invariants: each agent is confined to its write lane
+(`agent-write-guard.sh`), detection changes are blocked until `scripts/test_detections.py`
+passes (`require-harness-pass.sh`), and state-changing shell commands are denied
+(`no-prod-action-guard.sh`). The always-apply rules live in `AGENTS.md`, and the artifact
+lanes are documented in `triage/README.md`.
+
+Feed it a sample alert from `samples/alerts/` to run the full flow.
 
 ## Quick Start
 ---
@@ -101,6 +130,9 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 ```
 
 ### Docs Index
+- Agent invariants: `AGENTS.md`
+- Agentic triage roadmap: `docs/agentic_triage_roadmap.md`
+- Triage artifact lanes: `triage/README.md`
 - Runbook: `docs/runbook.md`
 - Triage template: `docs/triage_template.md`
 - Detection quality: `docs/detection_quality.md`
@@ -110,13 +142,14 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 - Phase 4 scaling plan: `docs/phase4_scaling_plan.md`
 - Phase 4 Batch A scorecard: `docs/phase4_batch_a_scorecard.md`
 - Phase 4 Batch B scorecard: `docs/phase4_batch_b_scorecard.md`
-- Interview narrative notes: `docs/interview_narrative.md`
+- Phase 4 Batch C scorecard: `docs/phase4_batch_c_scorecard.md`
+- Interview narrative notes: `notes/interview_narrative.md`
 - Security policy: `SECURITY.md`
 - Contribution guide: `CONTRIBUTING.md`
 
 ### Detection Pack (Offline Validation)
 - Field contract: `config/detections/field_contract.md`
-- Nginx detection pack (10 rules): `config/detections/nginx/`
+- Nginx detection pack (11 rules): `config/detections/nginx/`
 - Fixtures: `samples/logs/nginx_access.log`
 - Expected outcomes: `tests/expected_hits.json`
 - Rule schema contract: `config/detections/rule.schema.json`

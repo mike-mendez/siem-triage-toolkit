@@ -1,7 +1,12 @@
 # Roadmap: Agentic SIEM Triage Pipeline
 
-> Status: planning. This document defines the next major phase of the ELK SIEM Deploy & Triage Toolkit:
-> turning manual triage into an orchestrated, human-gated agentic pipeline running on Claude Code.
+> Status: in progress (updated 2026-06). The core human-gated pipeline is **delivered** — phases
+> 1-4 in section 9 (reframe, scaffold, vertical slice, tuner + harness gate are all in place and
+> the pipeline has been run end-to-end). **Remaining:** phase 5 (eval + a CI workflow that runs
+> the harness on every PR) and the optional phase 6 (continuous learning).
+>
+> This document defines that phase: turning manual triage into an orchestrated, human-gated agentic
+> pipeline running on Claude Code.
 
 ## 1. Why this phase
 
@@ -126,13 +131,13 @@ samples/alerts/              # sample alert JSON to feed the pipeline
 
 Each phase is a clean, self-contained set of commits. Resist a big-bang rewrite.
 
-1. **Reframe** — land this roadmap + a README scope update. Signals direction immediately.
-2. **Scaffold** — add `.claude/` (orchestrator + agents), `AGENTS.md`, hooks, `triage/` lanes.
-3. **One real vertical slice** — alert → intake → analyst → report against the existing Nginx pack
+1. **Reframe** _(done)_ — land this roadmap + a README scope update. Signals direction immediately.
+2. **Scaffold** _(done)_ — add `.claude/` (orchestrator + agents), `AGENTS.md`, hooks, `triage/` lanes.
+3. **One real vertical slice** _(done)_ — alert → intake → analyst → report against the existing Nginx pack
    and fixtures, with enrichment stubbed. One working path beats five stubs.
-4. **Tuner + harness gate** — the differentiating piece; reuses `test_detections.py`.
-5. **Eval + CI** — scorecard extending `detection_quality.md`, plus the PR harness workflow.
-6. **Continuous learning** — optional, opt-in instincts layer.
+4. **Tuner + harness gate** _(done)_ — the differentiating piece; reuses `test_detections.py`.
+5. **Eval + CI** _(partial — CI harness workflow still to add)_ — scorecard extending `detection_quality.md`, plus the PR harness workflow.
+6. **Continuous learning** _(planned, optional)_ — optional, opt-in instincts layer.
 
 ## 10. Resume / interview framing
 
