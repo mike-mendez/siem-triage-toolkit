@@ -110,13 +110,14 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 - Phase 4 scaling plan: `docs/phase4_scaling_plan.md`
 - Phase 4 Batch A scorecard: `docs/phase4_batch_a_scorecard.md`
 - Phase 4 Batch B scorecard: `docs/phase4_batch_b_scorecard.md`
-- Interview narrative notes: `docs/interview_narrative.md`
+- Phase 4 Batch C scorecard: `docs/phase4_batch_c_scorecard.md`
+- Interview narrative notes: `notes/interview_narrative.md`
 - Security policy: `SECURITY.md`
 - Contribution guide: `CONTRIBUTING.md`
 
 ### Detection Pack (Offline Validation)
 - Field contract: `config/detections/field_contract.md`
-- Nginx detection pack (10 rules): `config/detections/nginx/`
+- Nginx detection pack (11 rules): `config/detections/nginx/`
 - Fixtures: `samples/logs/nginx_access.log`
 - Expected outcomes: `tests/expected_hits.json`
 - Rule schema contract: `config/detections/rule.schema.json`

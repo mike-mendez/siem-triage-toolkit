@@ -4,7 +4,7 @@
 Capture interview-grade evidence directly from Kibana UI (not generated summaries) so alert behavior and analyst workflow are demonstrable.
 
 ## Required Screenshots
-1. Alert list view filtered to `phase3_*` or current batch rule tags.
+1. Alert list view filtered to `nginx_*` or current batch rule tags.
 2. Alert detail flyout/page showing:
    - rule name and severity
    - key event fields (`source.ip`, `url.path`, status)

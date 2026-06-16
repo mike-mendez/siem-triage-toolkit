@@ -4,40 +4,34 @@
 - Telemetry source: `samples/logs/nginx_access.log` (fixture-driven Nginx access logs)
 - Indexed target: `nginx-phase3-lab`
 - Detection rules validated:
-  - `phase3_nginx_sqli_querystring`
-  - `phase3_nginx_webshell_path_probe`
-  - `phase3_nginx_404_recon_burst`
+  - `nginx_sqli_querystring`
+  - `nginx_webshell_path_probe`
+  - `nginx_404_recon_burst`
 - Validation sequence:
   - Baseline mode first (`http`)
   - TLS mode parity pass second (`https` + CA trust)
 
 ## Baseline Validation (HTTP)
 ### Rule Outcomes (initial validation snapshot)
-- `phase3_nginx_sqli_querystring`: 3 alerts
-- `phase3_nginx_webshell_path_probe`: 4 alerts
-- `phase3_nginx_404_recon_burst`: 4 alerts
+- `nginx_sqli_querystring`: 3 alerts
+- `nginx_webshell_path_probe`: 4 alerts
+- `nginx_404_recon_burst`: 4 alerts
 
 ### Evidence Artifacts
 - `exports/kibana/rules.ndjson`
 - `exports/kibana/dashboard.ndjson`
 - `exports/kibana/timelines.ndjson`
-- `samples/screenshots/phase3_baseline_alert_list.png`
-- `samples/screenshots/phase3_baseline_alert_detail.png`
-- `samples/screenshots/phase3_baseline_dashboard_summary.png`
 
 ## TLS Validation (HTTPS)
 ### Rule Outcomes (initial parity snapshot)
-- `phase3_nginx_sqli_querystring`: 6 alerts
-- `phase3_nginx_webshell_path_probe`: 5 alerts
-- `phase3_nginx_404_recon_burst`: 5 alerts
+- `nginx_sqli_querystring`: 6 alerts
+- `nginx_webshell_path_probe`: 5 alerts
+- `nginx_404_recon_burst`: 5 alerts
 
 ### Evidence Artifacts
 - `exports/kibana/rules.ndjson`
 - `exports/kibana/dashboard.ndjson`
 - `exports/kibana/timelines.ndjson`
-- `samples/screenshots/phase3_tls_alert_list.png`
-- `samples/screenshots/phase3_tls_alert_detail.png`
-- `samples/screenshots/phase3_tls_dashboard_summary.png`
 
 ## Baseline vs TLS Notes
 - Rule behavior parity: all three rules fired in both modes.

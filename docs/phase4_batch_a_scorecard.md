@@ -14,7 +14,7 @@
 - Net new technique coverage: `+1` (T1110)
 
 ## Quality Gate Outcomes
-- Offline harness: `PASS` (10/10 rules)
+- Offline harness: `PASS` (6/6 rules)
 - Schema contract: `PASS`
 - Fixture integrity: `PASS`
 - Expected hit assertions: `PASS`
