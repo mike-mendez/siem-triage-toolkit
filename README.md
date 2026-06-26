@@ -1,21 +1,30 @@
-# ELK SIEM Deploy & Triage Toolkit
+# ELK SIEM Detection & Agentic Triage Toolkit
 
 ## Summary
-> ### Automates deploy-on-demand ELK-based SIEM stacks with preconfigured parsers, dashboards, and triage logic to rapidly ingest logs, test detections, and evaluate alert quality.
+> ### A human-gated, agentic SOC triage pipeline and offline detection-engineering pack, built on deploy-on-demand ELK. It ingests an alert, enriches and correlates it, assesses severity against MITRE ATT&CK, and proposes (never applies) detection tuning — proven safe by a validation harness and ratified by a human before anything lands.
+
+> **Project history:** this started as a deploy-on-demand ELK SIEM stack (parsers, dashboards, TLS).
+> It was revamped into a detection-engineering and agentic-triage toolkit. The ELK deploy automation
+> documented below is now the substrate; the offline detection pack and the human-gated triage
+> pipeline are the focus.
 
 ## Repo Provides
 - Agentic, human-gated triage pipeline on Claude Code (see **Agentic Triage Pipeline** below)
+- Offline Nginx detection pack: 11 schema-gated rules with playbooks, fixtures, and a validation harness
 - Docker Compose baseline (HTTP) and TLS overlay (HTTPS)
 - Kibana configs split into:
   - `kibana.http.yml` (baseline uses `kibana_system`)
   - `kibana.tls.yml` (TLS uses service account token)
 - Project-scoped Elasticsearch data volumes by Compose project name (`-p`)
+- Security & supply-chain guardrails: secret scanning, Conventional Commits, Dependabot, agent guard hooks
 
 ## Main Features
 - Human-gated **agentic triage pipeline** (orchestrator + specialist subagents) that triages alerts and proposes detection tuning without acting on live infrastructure
 - Hardened mode-aware ELK deploy automation (`baseline` and `tls`)
-- Offline detection engineering pack for Nginx with schema-gated rule contracts
+- Offline detection-engineering pack for Nginx (11 rules) with schema-gated rule contracts and per-rule playbooks
 - Fixture-driven validation harness with explicit `must_hit` / `must_not_hit` assertions
+- Deterministic guard hooks: write-lane confinement, harness-gated tuning, and a no-production-action denylist
+- Security & governance automation: gitleaks secret scanning (pre-commit + CI), Conventional-Commit enforcement, and Dependabot updates
 - Exported stack evidence artifacts and screenshot capture workflow
 - Batch-based scaling model from 3 validated rules to 11 (and growing) with quality gates
 
@@ -36,6 +45,7 @@ alert -> intake -> enrich -> correlate -> assess -> (human ratifies) -> tune -> 
 | Enrich    | `enricher`        | `triage/enrichment/<id>.md`                             |
 | Correlate | `correlator`      | `triage/correlation/<id>.md`                            |
 | Assess    | `analyst`         | `triage/reports/<id>.md`                                |
+| Ratify    | `orchestrator`    | `triage/status/<id>.md` (human-gated ratification record)|
 | Tune      | `detection-tuner` | `config/detections/**` (only after the harness passes)  |
 
 Deterministic guard hooks enforce the invariants: each agent is confined to its write lane
@@ -44,7 +54,26 @@ passes (`require-harness-pass.sh`), and state-changing shell commands are denied
 (`no-prod-action-guard.sh`). The always-apply rules live in `AGENTS.md`, and the artifact
 lanes are documented in `triage/README.md`.
 
+The orchestrator is the only agent that talks to the user or spawns specialists, and it passes file
+paths between stages (never artifact bodies) to keep context lean. Specialists kick work back rather
+than overstep: `NEEDS CONTEXT:` makes the orchestrator run the enricher and resume; `NEEDS DECISION:`
+makes it ask the human. Tuning only begins after the analyst's disposition is ratified and the report
+recommends a rule change.
+
 Feed it a sample alert from `samples/alerts/` to run the full flow.
+
+## Security, CI & Governance
+Supply-chain and secret hygiene are first-class in this repo:
+- **Secret scanning** — `gitleaks` runs as a pre-commit hook and as a server-side CI backstop (`.github/workflows/security.yml`) that scans full git history on every push and PR.
+- **Pre-commit hygiene** — private-key detection, large-file / merge-conflict / YAML-TOML-JSON checks, and EOF / trailing-whitespace fixers (`.pre-commit-config.yaml`, every rev pinned).
+- **Conventional Commits** — enforced at the `commit-msg` stage via commitizen; a local guard also rejects AI co-author / "generated with" trailers.
+- **Dependency updates** — Dependabot watches the `github-actions`, `pip`, and `docker` ecosystems (`.github/dependabot.yml`).
+- **Agent guard hooks** — `agent-write-guard.sh` (lane confinement), `require-harness-pass.sh` (no tuning until the harness passes), and `no-prod-action-guard.sh` (state-changing command denylist), wired via `.claude/settings.json`.
+- **Governance docs** — `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `.github/CODEOWNERS`.
+
+> Roadmap: a PR-triggered workflow that runs `scripts/test_detections.py` on every change is still
+> pending (roadmap phase 5). Today the detection harness is run locally via `scripts/test_detections.py`
+> or `scripts/check_detection_pack.sh`.
 
 ## Quick Start
 ---
@@ -130,6 +159,7 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 ```
 
 ### Docs Index
+- Install / scaffold guide: `INSTALL.md`
 - Agent invariants: `AGENTS.md`
 - Agentic triage roadmap: `docs/agentic_triage_roadmap.md`
 - Triage artifact lanes: `triage/README.md`
@@ -139,6 +169,7 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 - ATT&CK mapping: `docs/mitre_mapping.md`
 - Native screenshot checklist: `docs/kibana_screenshot_checklist.md`
 - Phase 3 validation checklist: `docs/phase3_validation_checklist.md`
+- Phase 3 results: `docs/phase3_results.md`
 - Phase 4 scaling plan: `docs/phase4_scaling_plan.md`
 - Phase 4 Batch A scorecard: `docs/phase4_batch_a_scorecard.md`
 - Phase 4 Batch B scorecard: `docs/phase4_batch_b_scorecard.md`
@@ -146,10 +177,13 @@ docker compose -p ${COMPOSE_PROJECT_NAME} -f compose.yml -f compose.tls.yml up -
 - Interview narrative notes: `notes/interview_narrative.md`
 - Security policy: `SECURITY.md`
 - Contribution guide: `CONTRIBUTING.md`
+- Code of conduct: `CODE_OF_CONDUCT.md`
 
 ### Detection Pack (Offline Validation)
 - Field contract: `config/detections/field_contract.md`
 - Nginx detection pack (11 rules): `config/detections/nginx/`
+- Per-rule response playbooks: `config/detections/nginx/playbooks/`
+- Detection pack overview: `config/detections/nginx/README.md`
 - Fixtures: `samples/logs/nginx_access.log`
 - Expected outcomes: `tests/expected_hits.json`
 - Rule schema contract: `config/detections/rule.schema.json`
