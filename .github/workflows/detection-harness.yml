@@ -1,0 +1,27 @@
+name: detection-harness
+
+# Runs the offline detection harness on every push and PR so a rule change can't
+# regress the must_hit / must_not_hit assertions silently. The harness is
+# stdlib-only, so no dependency install step is needed.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: detection harness (must_hit / must_not_hit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run detection harness
+        run: python3 scripts/test_detections.py --output-format text
