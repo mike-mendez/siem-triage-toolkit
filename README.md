@@ -65,15 +65,16 @@ Feed it a sample alert from `samples/alerts/` to run the full flow.
 ## Security, CI & Governance
 Supply-chain and secret hygiene are first-class in this repo:
 - **Secret scanning** — `gitleaks` runs as a pre-commit hook and as a server-side CI backstop (`.github/workflows/security.yml`) that scans full git history on every push and PR.
+- **Detection harness CI** — `.github/workflows/detection-harness.yml` runs `scripts/test_detections.py` on every push and PR so rule changes can't silently regress the `must_hit` / `must_not_hit` assertions.
 - **Pre-commit hygiene** — private-key detection, large-file / merge-conflict / YAML-TOML-JSON checks, and EOF / trailing-whitespace fixers (`.pre-commit-config.yaml`, every rev pinned).
 - **Conventional Commits** — enforced at the `commit-msg` stage via commitizen; a local guard also rejects AI co-author / "generated with" trailers.
 - **Dependency updates** — Dependabot watches the `github-actions`, `pip`, and `docker` ecosystems (`.github/dependabot.yml`).
 - **Agent guard hooks** — `agent-write-guard.sh` (lane confinement), `require-harness-pass.sh` (no tuning until the harness passes), and `no-prod-action-guard.sh` (state-changing command denylist), wired via `.claude/settings.json`.
 - **Governance docs** — `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `.github/CODEOWNERS`.
 
-> Roadmap: a PR-triggered workflow that runs `scripts/test_detections.py` on every change is still
-> pending (roadmap phase 5). Today the detection harness is run locally via `scripts/test_detections.py`
-> or `scripts/check_detection_pack.sh`.
+> The detection harness runs in CI on every push and PR (`.github/workflows/detection-harness.yml`),
+> so rule changes can't regress the `must_hit` / `must_not_hit` assertions silently. Run it locally
+> with `scripts/test_detections.py` or `scripts/check_detection_pack.sh`.
 
 ## Quick Start
 ---

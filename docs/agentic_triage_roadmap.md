@@ -2,8 +2,9 @@
 
 > Status: in progress (updated 2026-06). The core human-gated pipeline is **delivered** — phases
 > 1-4 in section 9 (reframe, scaffold, vertical slice, tuner + harness gate are all in place and
-> the pipeline has been run end-to-end). **Remaining:** phase 5 (eval + a CI workflow that runs
-> the harness on every PR) and the optional phase 6 (continuous learning).
+> the pipeline has been run end-to-end). The phase 5 **CI harness** — running `test_detections.py`
+> on every push and PR — is now in place (`.github/workflows/detection-harness.yml`). **Remaining:**
+> the phase 5 eval scorecard (extending `detection_quality.md`) and the optional phase 6 (continuous learning).
 >
 > This document defines that phase: turning manual triage into an orchestrated, human-gated agentic
 > pipeline running on Claude Code.
@@ -136,7 +137,7 @@ Each phase is a clean, self-contained set of commits. Resist a big-bang rewrite.
 3. **One real vertical slice** _(done)_ — alert → intake → analyst → report against the existing Nginx pack
    and fixtures, with enrichment stubbed. One working path beats five stubs.
 4. **Tuner + harness gate** _(done)_ — the differentiating piece; reuses `test_detections.py`.
-5. **Eval + CI** _(partial — CI harness workflow still to add)_ — scorecard extending `detection_quality.md`, plus the PR harness workflow.
+5. **Eval + CI** _(partial — CI harness done; eval scorecard remaining)_ — the PR harness workflow (`.github/workflows/detection-harness.yml`) runs `test_detections.py` on every push and PR; the scorecard extending `detection_quality.md` is still to add.
 6. **Continuous learning** _(planned, optional)_ — optional, opt-in instincts layer.
 
 ## 10. Resume / interview framing
